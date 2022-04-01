@@ -1,8 +1,9 @@
 #ifndef INCLUDE_POLYNOMIAL_HPP_
 #define INCLUDE_POLYNOMIAL_HPP_
 
-class Polynomial
-{
+class Polynomial {
+    Polynomial();
+    ~Polynomial();
 };
 
 #endif  //  INCLUDE_POLYNOMIAL_HPP_
