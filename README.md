@@ -15,6 +15,19 @@ An Open Source Quadruped Robot.
 3. ROS Melodic
 4. Eigen
 
+## Theory
+**Trajectory Planning**
+1. Cycloidal - Leg Stance
+2. Constant Velocity - Leg Support
+3. Quintic Polynomial- Body
+
+## TO-DO's
+1. Inverse Kinematics
+2. Forward Kinematics
+3. Velocity Kinematics
+4. Trajectory Planner
+5. State Machine
+
 ## LICENSE
 ```
 BSD 3-Clause License
