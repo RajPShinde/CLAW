@@ -1,10 +1,16 @@
 #ifndef INCLUDE_INVERSEKINEMATICS_HPP_
 #define INCLUDE_INVERSEKINEMATICS_HPP_
 
+#include <claw.hpp>
+
 namespace kinematics{
 class InverseKinematics {
-    InverseKinematics();
-    ~InverseKinematics();
+    public:
+        InverseKinematics();
+
+        ~InverseKinematics();
+
+        computeJointAngles(double x, double y);
 };
 }
 
