@@ -3,13 +3,17 @@
 
 class Gait {
     public:
-        Gait();
+        Gait(double stride, double height, double te, double tm, std::string type);
 
         ~Gait();
-    
-    private:
-        double stride_;
-        double height_;
+
+        const double stride;
+        const double height;
+        const double te;
+        const double tm;
+        const double tn;
+        
+        const std::string type;
 };
 
 #endif  //  INCLUDE_GAIT_HPP_

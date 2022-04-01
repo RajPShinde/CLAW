@@ -7,14 +7,17 @@ class Claw {
 
         ~Claw();
 
-    private:
-        const double femur_ = 20;
-        const double tibia_ = 20;
-        const double idleBaseHeight_ = 40;
-        const double baseMaxHeight_ = 45;
-        const double baseMinHeight_ = 20;
-        const std::string legConfiguration_ = ">>";
-        const int noOfActuators_ = 12;
+        const double femur = 20;
+        const double tibia = 20;
+        const double idleBaseHeight = 40;
+        const double baseMaxHeight = 45;
+        const double baseMinHeight = 20;
+        const int noOfActuators = 12;
+        const double reductionHA = 3;
+        const double reductionHF = 10;
+        const double reductionKF = 10;
+        const std::string legConfiguration = ">>";
+
 };
 
 #endif  //  INCLUDE_CLAW_HPP_
