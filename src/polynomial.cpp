@@ -23,17 +23,17 @@ Polynomial::~Polynomial(){
 }
 
 Polynomial::position(){
-
+    return a1_ + a2_ * t + a3_ * std::pow(t,2) + a4_ * std::pow(t,3) + a5_ * std::pow(t,4) + a6_ * std::pow(t,5);
 }
 
 Polynomial::velocity(){
-
+    return a2_ + 2 * a3_ * t + 3 * a4_ * std::pow(t,2) + 4 * a5_ * std::pow(t,3) + 5 * a6_ * std::pow(t,4);
 }
 
 Polynomial::acceleration(){
-
+    return 2 * a3_ + 6 * a4_ * t + 12 * a5_ * std::pow(t,2) + 20 * a6_ * std::pow(t,3);
 }
 
 Polynomial::jerk(){
-    
+    return 6 * a4_ + 24 * a5_ * t + 60 * a6_ * std::pow(t,2);
 }
