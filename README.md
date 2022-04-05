@@ -14,6 +14,8 @@ An Open Source Quadruped Robot.
 2. Python 3
 3. ROS Melodic
 4. Eigen
+5. [libi2c](https://github.com/amaork/libi2c)
+6. [odrive_can](https://github.com/swankun/odrive_can)
 
 ## Theory
 **Trajectory Planning**
