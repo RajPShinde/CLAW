@@ -1,0 +1,13 @@
+odrv0.axis0.motor.config.pole_pairs=20
+odrv0.axis0.encoder.config.cpr = 2000
+odrv0.axis0.motor.config.torque_constant=0.091888889
+odrv0.config.dc_max_negative_current=-0.09
+odrv0.axis0.controller.config.vel_limit=10
+odrv0.axis0.requested_state = AXIS_STATE_FULL_CALIBRATION_SEQUENCE
+odrv0.axis0.motor.config.pre_calibrated =True
+odrv0.axis0.encoder.config.pre_calibrated =True
+odrv0.axis0.requested_state = AXIS_STATE_ENCODER_INDEX_SEARCH
+odrv0.axis0.config.startup_encoder_index_search = True
+odrv0.axis0.config.startup_encoder_offset_calibration = False
+odrv0.axis0.config.startup_closed_loop_control = True
+odrv0.save_configuration()
