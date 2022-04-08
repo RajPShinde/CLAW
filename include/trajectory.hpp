@@ -6,7 +6,7 @@
 
 class Trajectory {
     public:
-        Trajectory();
+        Trajectory(Gait &obj);
     
         ~Trajectory();
 
