@@ -3,7 +3,7 @@
 
 #include <math>
 #include <claw.hpp>
-#include <inverseKinematics.hpp>
+#include <forwardKinematics.hpp>
 
 class VelocityKinematics {
     public:
@@ -11,7 +11,7 @@ class VelocityKinematics {
 
         ~VelocityKinematics();
 
-        std::vector<double> jacobian();
+        std::vector<double> jacobian(std::vector<double> JointAngles, int n);
 
     private:
         Claw claw_;

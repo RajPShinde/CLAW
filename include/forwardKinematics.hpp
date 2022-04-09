@@ -1,6 +1,17 @@
 #ifndef INCLUDE_FORWARDKINEMATICS_HPP_
 #define INCLUDE_FORWARDKINEMATICS_HPP_
 
+/**
+ * @file forwardKinematics.hpp
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2022-04-08
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include <math>
 
 #include <Eigen/Dense>

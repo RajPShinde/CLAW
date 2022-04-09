@@ -1,6 +1,17 @@
 #ifndef INCLUDE_INVERSEKINEMATICS_HPP_
 #define INCLUDE_INVERSEKINEMATICS_HPP_
 
+/**
+ * @file inverseKinematics.hpp
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2022-04-08
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
+
 #include <math>
 #include <claw.hpp>
 
@@ -19,8 +30,8 @@ class InverseKinematics {
          */
         std::vector<double> computeJointAngles(double x, double y, double z);
 
-        private:
-            Claw claw_;
+    private:
+        Claw claw_;
 };
 
 #endif  //  INCLUDE_INVERSEKINEMATICS_HPP_
