@@ -22,18 +22,18 @@ An Open Source Quadruped Robot.
 - [x] Inverse Kinematics
 - [x] Forward Kinematics
 - [ ] Velocity Kinematics
-- [ ] Force/Torque Rel
+- [ ] Force/Torque Rel  
 **Trajectory Planning**  
 - [x] Compound Cycloid
-- [x] Jerk Minimized
+- [x] Jerk Minimized  
 **Hardware Interface**  
 - [ ] odrive CAN
-- [ ] OLED I2C
+- [ ] OLED I2C  
 **Visualization**  
 - [ ] URDF
-- [ ] Joint State Publishers
+- [ ] Joint State Publishers  
 **Manager**  
-- [ ] State Machine
+- [ ] State Machine  
 
 ## LICENSE
 ```
