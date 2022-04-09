@@ -10,7 +10,7 @@
 An Open Source Quadruped Robot.
 
 ## Dependencies
-1. C++ 11/14
+1. C++ 14
 2. Python 3
 3. ROS Melodic
 4. Eigen
@@ -19,21 +19,21 @@ An Open Source Quadruped Robot.
 
 ## TO-DO's
 **Kinematics**
-[x] Inverse Kinematics
-[x] Forward Kinematics
-[] Velocity Kinematics
-[] Force/Torque Rel
+- [x] Inverse Kinematics
+- [x] Forward Kinematics
+- [] Velocity Kinematics
+- [] Force/Torque Rel
 **Trajectory Planning**
-[x] Compound Cycloid
-[x] Jerk Minimized
+- [x] Compound Cycloid
+- [x] Jerk Minimized
 **Hardware Interface**
-[] odrive CAN
-[] OLED I2C
+- [] odrive CAN
+- [] OLED I2C
 **Visualization**
-[] URDF
-[] Joint State Publishers
+- [] URDF
+- [] Joint State Publishers
 **Manager**
-[] State Machine
+- [] State Machine
 
 ## LICENSE
 ```
