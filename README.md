@@ -13,26 +13,26 @@ An Open Source Quadruped Robot.
 1. C++ 14
 2. Python 3
 3. ROS Melodic
-4. Eigen
+4. Eigen 3.4.0
 5. [libi2c](https://github.com/amaork/libi2c)
 6. [odrive_can](https://github.com/swankun/odrive_can)
 
 ## TO-DO's
-**Kinematics**
+**Kinematics**  
 - [x] Inverse Kinematics
 - [x] Forward Kinematics
 - [ ] Velocity Kinematics
 - [ ] Force/Torque Rel
-**Trajectory Planning**
+**Trajectory Planning**  
 - [x] Compound Cycloid
 - [x] Jerk Minimized
-**Hardware Interface**
+**Hardware Interface**  
 - [ ] odrive CAN
 - [ ] OLED I2C
-**Visualization**
+**Visualization**  
 - [ ] URDF
 - [ ] Joint State Publishers
-**Manager**
+**Manager**  
 - [ ] State Machine
 
 ## LICENSE

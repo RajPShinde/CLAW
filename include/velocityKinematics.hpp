@@ -11,7 +11,9 @@ class VelocityKinematics {
 
         ~VelocityKinematics();
 
-        std::vector<double> jacobian(std::vector<double> JointAngles, int n);
+        Eigen::MatrixXd jacobian(std::vector<double> JointAngles, int n);
+
+        Eigen::Vector3d footVelocities(Eigen::Vector3d jointVelocities, std::vector<double> JointAngles, int n);
 
     private:
         Claw claw_;

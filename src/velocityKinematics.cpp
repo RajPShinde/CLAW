@@ -6,7 +6,7 @@ VelocityKinematics::VelocityKinematics(){
 VelocityKinematics::~VelocityKinematics(){
 }
 
-void VelocityKinematics::jacobian(std::vector<double> JointAngles, int n){
+Eigen::MatrixXd VelocityKinematics::jacobian(std::vector<double> JointAngles, int n){
     double dir = 1;
     if(n == (2 || 3))
         dir = -1;
@@ -23,11 +23,20 @@ void VelocityKinematics::jacobian(std::vector<double> JointAngles, int n){
     Eigen::Vector3d z2 = h23.block<3,1>(0,2);
     Eigen::Vector3d z3 = h34.block<3,1>(0,2);
 
-    Eigen::Vector3d jLinear1 = z1*(o4-o1);
-    Eigen::Vector3d jLinear2 = z2*(o4-o2);
-    Eigen::Vector3d jLinear3 = z3*(o4-o3);
+    Eigen::MatrixXd jacobian(6,3);
 
-    Eigen::Vector3d jAngular1 = z1;
-    Eigen::Vector3d jAngular2 = z2;
-    Eigen::Vector3d jAngular3 = z3;
+    // Linear
+    jacobian.block<3, 1>(0,0) = z1.cross(o4-o1);
+    jacobian.block<3, 1>(0,1) = z2.cross(o4-o2);
+    jacobian.block<3, 1>(0,2) = z3.cross(o4-o3);
+    // Angular
+    jacobian.block<3, 1>(3,0) = z1;
+    jacobian.block<3, 1>(3,1) = z2;
+    jacobian.block<3, 1>(3,2) = z3;
+
+    return jacobian;
+}
+
+Eigen::Vector3d footVelocities(Eigen::Vector3d jointVelocities, std::vector<double> JointAngles, int n){
+    return Jacobian(jointAngles, n) * jointVelocities;
 }
