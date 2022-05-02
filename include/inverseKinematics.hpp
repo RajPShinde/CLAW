@@ -12,7 +12,7 @@
  * 
  */
 
-#include <math>
+#include <math.h>
 #include <claw.hpp>
 
 class InverseKinematics {
@@ -28,7 +28,7 @@ class InverseKinematics {
          * @param z z in leg frame
          * @return std::vector<double> 
          */
-        std::vector<double> computeJointAngles(double x, double y, double z);
+        std::vector<double> computeJointAngles(double x, double y, double z, int n);
 
     private:
         Claw claw_;
