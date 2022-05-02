@@ -18,22 +18,22 @@ An Open Source Quadruped Robot.
 6. [odrive_can](https://github.com/swankun/odrive_can)
 
 ## TO-DO's
-**Kinematics**  
+### Kinematics
 - [x] Inverse Kinematics
 - [x] Forward Kinematics
 - [ ] Velocity Kinematics
-- [ ] Force/Torque Rel  
-**Trajectory Planning**  
+- [ ] Force/Torque Rel
+### Trajectory Planning
 - [x] Compound Cycloid
-- [x] Jerk Minimized  
-**Hardware Interface**  
+- [x] Jerk Minimized
+### Hardware Interface
 - [ ] odrive CAN
-- [ ] OLED I2C  
-**Visualization**  
+- [ ] OLED I2C
+### Visualization
 - [ ] URDF
-- [ ] Joint State Publishers  
-**Manager**  
-- [ ] State Machine  
+- [ ] Joint State Publishers
+### Manager
+- [ ] State Machine
 
 ## LICENSE
 ```
