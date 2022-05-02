@@ -1,6 +1,9 @@
 #ifndef INCLUDE_MANAGER_HPP_
 #define INCLUDE_MANAGER_HPP_
 
+#include <thread>
+#include <string>
+#include <iostream>
 #include <gait.hpp>
 
 class Manager {
@@ -15,17 +18,29 @@ class Manager {
 
         void reset();
 
+        void updateJointAngles();
+
     private:
+        std::string canDevice_ = "can0";
         std::string state_;
         std::string direction_;
         const std::vector states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
-        const std::vector directions_ = {"F", "B", "L", "R", "S"};
-        std::vector legPhase_ = {1, 1, 1, 1};
 
-        Gait gaitX_;
-        Gait gaitY_;
+        Gait gait;
         InverseKinematics ik_;
         ForwardKinematics fk_;
+
+        std::map<std::string, std::vector<int>> jointAngles_ = {{"leg1", {0, 0, 0}},
+                                                                {"leg2", {0, 0, 0}},
+                                                                {"leg3", {0, 0, 0}},
+                                                                {"leg4", {0, 0, 0}}};
+
+        std::map<std::string, std::vector<int>> encoderValues_ = {{"leg1", {0, 0, 0}},
+                                                                  {"leg2", {0, 0, 0}},
+                                                                  {"leg3", {0, 0, 0}},
+                                                                  {"leg4", {0, 0, 0}}};
+
+        double batteryVoltage_ = 0;
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_

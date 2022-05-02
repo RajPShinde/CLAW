@@ -1,6 +1,6 @@
 #include <manager.hpp>
 
 int main(int argc, char **argv){
-    manager claw;
+    Manager claw;
     return 0;
 }
