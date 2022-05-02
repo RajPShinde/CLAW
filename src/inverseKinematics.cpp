@@ -6,7 +6,7 @@ InverseKinematics::InverseKinematics(){
 InverseKinematics::~InverseKinematics(){
 }
 
-std::vector<double> InverseKinematics::computeJointAngles(double x, double y, double z){
+std::vector<double> InverseKinematics::computeJointAngles(double x, double y, double z, int n){
     double r = std::sqrt(std::pow(x, 2) + std::pow(y, 2) - std::pow(claw_.d, 2));
     
     double alpha = std::atan2(x, y) + std::atan2(-1 * std::sqrt(std::pow(r, 2) - std::pow(d, 2)), -d);

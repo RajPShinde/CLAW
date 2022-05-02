@@ -39,6 +39,9 @@ Eigen::MatrixXd VelocityKinematics::jacobian(std::vector<double> JointAngles, in
     return jacobian;
 }
 
-Eigen::Vector3d footVelocities(Eigen::Vector3d jointVelocities, std::vector<double> JointAngles, int n){
+Eigen::VectorXd VelocityKinematics::footVelocities(Eigen::Vector3d jointVelocities, std::vector<double> JointAngles, int n){
     return Jacobian(jointAngles, n) * jointVelocities;
+}
+
+Eigen::VectorXd VelocityKinematics::reactionForces(Eigen::Vector3d jointTorques, std::vector<double> JointAngles, int n){
 }

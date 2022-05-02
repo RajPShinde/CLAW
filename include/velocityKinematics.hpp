@@ -13,10 +13,9 @@ class VelocityKinematics {
 
         Eigen::MatrixXd jacobian(std::vector<double> JointAngles, int n);
 
-        Eigen::Vector3d footVelocities(Eigen::Vector3d jointVelocities, std::vector<double> JointAngles, int n);
+        Eigen::VectorXd footVelocities(Eigen::Vector3d jointVelocities, std::vector<double> JointAngles, int n);
 
-    private:
-        Claw claw_;
+        Eigen::VectorXd reactionForces(Eigen::Vector3d jointTorques, std::vector<double> JointAngles, int n);
 };
 
 #endif  //  INCLUDE_VELOCITYKINEMATICS_HPP_
