@@ -15,17 +15,11 @@ class Manager {
 
         void begin();
 
-        void updateJointAngles();
-
         std::vector<int> anglesToPosition(std::vector<double> angle, int n);
 
         std::vector<double> positionToAngle(std::vector<int> position, int n);
 
     private:
-        const std::string canDevice_ = "can0";
-        std::string state_;
-        const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
-
         Claw claw_;
         Gait gait;
         InverseKinematics ik_;
@@ -34,12 +28,11 @@ class Manager {
         double commandValue_ = 0;
         double commandDirection_ = 0;
         double batteryVoltage_ = 0;
-        double cprAngleRelation_;
-
-        std::vector<double> jointAngles_ = {{0, 0, 0},
-                                            {0, 0, 0},
-                                            {0, 0, 0},
-                                            {0, 0, 0}};
+        const double cprAngleRelation_ = claw_.countsPerRevolution * claw_.gearReduction / 360;
+        const std::string canDevice_ = "can0";
+        std::string state_;
+        std::vector<double> jointAngles_;
+        const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_

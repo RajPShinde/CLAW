@@ -1,7 +1,7 @@
 #include <Manager.hpp>
 
-Manager::Manager(){
-    cprAngleRelation_ = claw_.countsPerRevolution * claw_.gearReduction / 360;
+Manager::Manager(): {
+    ROS_INFO_STREAM("Initializing Robot");
     begin();
 }
 
@@ -17,7 +17,7 @@ void Manager::begin(){
             master.add_axis(9, "odrive_axis_9") && master.add_axis(10, "odrive_axis_10") &&
             master.add_axis(11, "odrive_axis_11") && master.add_axis(12, "odrive_axis_12")))
     {
-        fprintf(stderr, "Failed to create one or more axis. Aborting.\n");
+        ROS_ERROR_STREAM("Failed to create one or more axis. Aborting");
         return -1;
     }
 
@@ -26,15 +26,14 @@ void Manager::begin(){
     can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
     if (!driver->init(canDevice_, 0, can::NoSettings::create()))
     {
-        fprintf(stderr, "Failed to initialize can device at %s\n", canDevice_.c_str());
+        ROS_ERROR_STREAM("Failed to initialize can device");
         return -1;
     }
     can::StateListenerConstSharedPtr state_listener = driver->createStateListener(
         [&driver](const can::State& s) {
             std::string err;
             driver->translateError(s.internal_error, err);
-            fprintf(stderr, "CAN Device error: %s, asio: %s.\n", 
-                err.c_str(), s.error_code.message().c_str());
+            ROS_ERROR_STREAM("CAN Device error");
         }
     );
 
@@ -45,11 +44,15 @@ void Manager::begin(){
     // Background Thread
     std::thread thr( [&master]() {
         while(master.is_ready()) {
-            fprintf(stdout, "Axis 1: [pos] = [%4.3f]\n", master.axis("odrive_axis_1").pos_enc_estimate);
+            // Update Joint Angles
+            jointAngles_ = {{master.axis("HA1").pos_enc_estimate, master.axis("HF1").pos_enc_estimate, master.axis("KF1").pos_enc_estimate},
+                            {master.axis("HA2").pos_enc_estimate, master.axis("HF2").pos_enc_estimate, master.axis("KF2").pos_enc_estimate},
+                            {master.axis("HA3").pos_enc_estimate, master.axis("HF3").pos_enc_estimate, master.axis("KF3").pos_enc_estimate},
+                            {master.axis("HA4").pos_enc_estimate, master.axis("HF4").pos_enc_estimate, master.axis("KF4").pos_enc_estimate}};
             
-            // Check Battery Voltage
-            if(batteryVoltage_ = master.axis("odrive_axis_1").vbus_voltage < claw.mimBatteryVoltage){
-                fprintf(stderr, "Battery Voltage Low\n");
+            // Update and Check Battery Voltage
+            if(batteryVoltage_ = master.axis("HA1").vbus_voltage < claw.mimBatteryVoltage){
+                ROS_ERROR_STREAM(stderr, "Battery Voltage Low");
                 return -1;
             }
             std::this_thread::sleep_for(500ms);
@@ -67,7 +70,6 @@ void Manager::begin(){
     auto start = std::chrono::high_resolution_clock::now();
     // Loop
     while(true){
-
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         long long seconds = microseconds * 1e-6;
@@ -85,24 +87,27 @@ void Manager::begin(){
         auto leg4 = anglesToPosition(ik_.computeJointAngles(, 4), 4);
 
         // Send Joint Positions to respective odrive axis
+        // Hip Abduction
         master.set_input_pos(master.axis("HA1"), leg1[0]);
         master.set_input_pos(master.axis("HA2"), leg2[0]);
         master.set_input_pos(master.axis("HA3"), leg3[0]);
         master.set_input_pos(master.axis("HA4"), leg4[0]);
 
+        // Hip Flexion
         master.set_input_pos(master.axis("HF1"), leg1[1]);
         master.set_input_pos(master.axis("HF2"), leg2[1]);
         master.set_input_pos(master.axis("HF3"), leg3[1]);
         master.set_input_pos(master.axis("HF4"), leg4[1]);
 
+        // Knee Flexion
         master.set_input_pos(master.axis("KF1"), leg1[2]);
         master.set_input_pos(master.axis("KF2"), leg2[2]);
         master.set_input_pos(master.axis("KF3"), leg3[2]);
         master.set_input_pos(master.axis("KF4"), leg4[2]);
 
-    // Reset time after half gait cycle is complete
-    if(microseconds >= gait_.tm * 1e+6)
-        start = std::chrono::high_resolution_clock::now();
+        // Reset time after half gait cycle is complete
+        if(microseconds >= gait_.tm * 1e+6)
+            start = std::chrono::high_resolution_clock::now();
     }
 }
 
