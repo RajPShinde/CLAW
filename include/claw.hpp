@@ -22,23 +22,22 @@ class Claw {
         const double reductionHA = 3;
         const double reductionHF = 10.8;
         const double reductionKF = 10.8;
-        std::vector<std::string> legConfiguration = {">>", "<<", "><"};
+        std::string currentLegConfiguration = ">>";
+        std::vector<std::string> legConfigurations = {">>", "<<", "><"};
         std::vector<double> bodyTF = {{ x,  y, 0, 0, M_PI/2, 0},
                                       { x, -y, 0, 0, M_PI/2, 0},
                                       {-x, -y, 0, 0, M_PI/2, 0},
                                       {-x,  y, 0, 0, M_PI/2, 0}};
         
         const double kv = 90;
-        const double kt = 90*2*3.142/60;
+        const double kt = kv*2*3.142/60;
         const double maxCurrent = 30;
-
-        std::map<std::string, std::vector<int>> encoderZeros = {{"leg1", {0, 0, 0}},
-                                                                {"leg2", {0, 0, 0}},
-                                                                {"leg3", {0, 0, 0}},
-                                                                {"leg4", {0, 0, 0}}};
-
-
         const double minBatteryVoltage = 22.2;
+
+        std::vector<int> encoderOffset = {{0, 0, 0},
+                                          {0, 0, 0},
+                                          {0, 0, 0},
+                                          {0, 0, 0}};
 };
 
 #endif  //  INCLUDE_CLAW_HPP_

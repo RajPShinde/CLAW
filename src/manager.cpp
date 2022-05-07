@@ -1,6 +1,7 @@
 #include <Manager.hpp>
 
 Manager::Manager(){
+    cprAngleRelation_ = claw_.countsPerRevolution * claw_.gearReduction / 360;
     begin();
 }
 
@@ -47,7 +48,7 @@ void Manager::begin(){
             fprintf(stdout, "Axis 1: [pos] = [%4.3f]\n", master.axis("odrive_axis_1").pos_enc_estimate);
             
             // Check Battery Voltage
-            if(master.axis("odrive_axis_1").vbus_voltage < claw.mimBatteryVoltage){
+            if(batteryVoltage_ = master.axis("odrive_axis_1").vbus_voltage < claw.mimBatteryVoltage){
                 fprintf(stderr, "Battery Voltage Low\n");
                 return -1;
             }
@@ -55,6 +56,15 @@ void Manager::begin(){
         } 
     } );
 
+    // Initialize Legs
+
+
+    // Temporary commands
+    commandValue_ = 1;
+    commandDirection_ = 0;
+
+    // Start Time
+    auto start = std::chrono::high_resolution_clock::now();
     // Loop
     while(true){
 
@@ -62,14 +72,19 @@ void Manager::begin(){
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         long long seconds = microseconds * 1e-6;
         
+        // Get Swing & Stance Trajectory Coordinates for time = seconds
         auto stanceCoordinate = legStanceTrajectory(seconds);
         auto supportCoordinate = legSupportTrajectory(seconds);
 
+        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirectiomn
+
+        // Perform Inverse Kinematics & Obtain Joint Angles
         auto leg1 = anglesToPosition(ik_.computeJointAngles(, 1) ,1);
         auto leg2 = anglesToPosition(ik_.computeJointAngles(, 2), 2);
         auto leg3 = anglesToPosition(ik_.computeJointAngles(, 3), 3);
         auto leg4 = anglesToPosition(ik_.computeJointAngles(, 4), 4);
 
+        // Send Joint Positions to respective odrive axis
         master.set_input_pos(master.axis("HA1"), leg1[0]);
         master.set_input_pos(master.axis("HA2"), leg2[0]);
         master.set_input_pos(master.axis("HA3"), leg3[0]);
@@ -85,13 +100,16 @@ void Manager::begin(){
         master.set_input_pos(master.axis("KF3"), leg3[2]);
         master.set_input_pos(master.axis("KF4"), leg4[2]);
 
+    // Reset time after half gait cycle is complete
     if(microseconds >= gait_.tm * 1e+6)
         start = std::chrono::high_resolution_clock::now();
     }
 }
 
-void Manager::walk(){
+std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
+    return {claw_.encoderOffset[n-1][0] + angle[0] * cprAngleRelation_, claw_.encoderOffset[n-1][1] + angle[1] * cprAngleRelation_, claw_.encoderOffset[n-1][2] + angle[2] * cprAngleRelation_};
 }
 
-void Manager::reset(){
+std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
+    return {(position[0] - claw_.encoderOffset[n-1][0]) / cprAngleRelation_, (position[1] - claw_.encoderOffset[n-1][1]) / cprAngleRelation_, (position[2] - claw_.encoderOffset[n-1][2]) / cprAngleRelation_};
 }
