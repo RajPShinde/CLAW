@@ -1,7 +1,7 @@
 #ifndef INCLUDE_POLYNOMIAL_HPP_
 #define INCLUDE_POLYNOMIAL_HPP_
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 class Polynomial {
     public:

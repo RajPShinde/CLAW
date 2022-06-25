@@ -12,20 +12,21 @@
  * 
  */
 
-#include <math>
+#include <math.h>
 
-#include <Eigen/Dense>
-#include <Eigen/Geometry>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
 
 #include <claw.hpp>
 
 class ForwardKinematics {
+
     public:
         ForwardKinematics();
         
         ~ForwardKinematics();
 
-        Eigen::Matrix4d translateH(double xTrans, double yTrans, double zTrans);
+        Eigen::Matrix4d translationH(double xTrans, double yTrans, double zTrans);
 
         Eigen::Matrix4d rotationH(double xRot, double yRot, double zRot);
 
@@ -42,7 +43,7 @@ class ForwardKinematics {
         Eigen::Matrix4d legToFootH(std::vector<double> JointAngles, int n);
 
         Eigen::Vector3d footInLegFrame(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, Eigen::Vector3d p, int n);
-
+        
     private:
         Claw claw_;
 };
