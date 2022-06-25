@@ -1,9 +1,11 @@
 #ifndef INCLUDE_GAIT_HPP_
 #define INCLUDE_GAIT_HPP_
 
+#include <string>
+
 class Gait {
     public:
-        Gait(double stride, double height, double te, double tm, std::string type);
+        Gait(double s, double h, double e, double m, std::string type);
 
         ~Gait();
 
@@ -13,7 +15,7 @@ class Gait {
         const double tm;
         const double tn;
         
-        const std::string type;
+        const std::string name;
 };
 
 #endif  //  INCLUDE_GAIT_HPP_
