@@ -24,7 +24,7 @@ class Trajectory {
          * @param t time
          * @return std::pair<double, double> 
          */
-        std::pair<double, double> jerkMinimizedTrajectory(double x0, double y0, double z0, double xt, double yT, double zT, double t);
+        std::pair<double, double> jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double t);
 
         /**
          * @brief Generates leg's swing phase trajectory based on compound cycloid
