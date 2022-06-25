@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>claw</name>
+  <version>0.0.0</version>
+  <description>Package for CLAW:The Open-Source Quadruped Robot</description>
+  <maintainer email="rajprakashshinde07@gmail.com">Raj Shinde</maintainer>
+  <license>BSC 3-Clause</license>
+  <url type="website"></url>
+  <author email="rajprakashshinde07@gmail.com">Raj Shinde</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export></export>
+</package>
