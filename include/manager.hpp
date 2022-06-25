@@ -1,11 +1,20 @@
 #ifndef INCLUDE_MANAGER_HPP_
 #define INCLUDE_MANAGER_HPP_
 
+#include <ros/ros.h>
 #include <thread>
 #include <string>
 #include <iostream>
 #include <vector>
 #include <gait.hpp>
+#include <claw.hpp>
+
+#include <inverseKinematics.hpp>
+#include <forwardKinematics.hpp>
+#include <trajectory.hpp>
+#include <odrive_can_ros/can_simple.hpp>
+#include <socketcan_interface/socketcan.h>
+
 
 class Manager {
     public:
@@ -13,7 +22,7 @@ class Manager {
 
         ~Manager();
 
-        void begin();
+        int begin();
 
         std::vector<int> anglesToPosition(std::vector<double> angle, int n);
 
@@ -21,17 +30,17 @@ class Manager {
 
     private:
         Claw claw_;
-        Gait gait;
         InverseKinematics ik_;
         ForwardKinematics fk_;
 
         double commandValue_ = 0;
         double commandDirection_ = 0;
         double batteryVoltage_ = 0;
-        const double cprAngleRelation_ = claw_.countsPerRevolution * claw_.gearReduction / 360;
+        const double abductionCPRAngleRelation_ = claw_.countsPerRevolution * claw_.reductionHA / 360;
+        const double flexionCPRAngleRelation_ = claw_.countsPerRevolution * claw_.reductionHF / 360;
         const std::string canDevice_ = "can0";
         std::string state_;
-        std::vector<double> jointAngles_;
+        std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
 };
 
