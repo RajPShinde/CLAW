@@ -11,6 +11,7 @@ find_package(catkin REQUIRED
 			 tf
 			 tf2
 			 socketcan_interface
+			 visualization_msgs
 			)
 
 catkin_package(INCLUDE_DIRS include
@@ -28,6 +29,8 @@ endif()
 
 include_directories(include lib/odrive_can/include/ ${catkin_INCLUDE_DIRS})
 
-add_executable(claw src/main.cpp src/manager.cpp src/claw.cpp src/forwardKinematics.cpp src/inverseKinematics.cpp src/velocityKinematics.cpp src/trajectory.cpp src/gait.cpp src/polynomial.cpp lib/odrive_can/src/can_simple.cpp)
-target_link_libraries(claw ${catkin_LIBRARIES})
-add_dependencies(claw ${catkin_EXPORTED_TARGETS})
+add_executable(clawManager src/main.cpp src/manager.cpp src/claw.cpp src/forwardKinematics.cpp src/inverseKinematics.cpp 
+			   src/velocityKinematics.cpp src/trajectory.cpp src/gait.cpp src/polynomial.cpp lib/odrive_can/src/can_simple.cpp
+			   src/interface.cpp)
+target_link_libraries(clawManager ${catkin_LIBRARIES})
+add_dependencies(clawManager ${catkin_EXPORTED_TARGETS})
