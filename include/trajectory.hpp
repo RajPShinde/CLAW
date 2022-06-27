@@ -22,25 +22,25 @@ class Trajectory {
          * @param yT y final
          * @param zT z final
          * @param t time
-         * @return std::pair<double, double> 
+         * @return Eigen::Vector3d 
          */
-        std::pair<double, double> jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double t);
+        Eigen::Vector3d jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double t);
 
         /**
          * @brief Generates leg's swing phase trajectory based on compound cycloid
          * 
          * @param t time
-         * @return std::pair<double, double> 
+         * @return Eigen::Vector3d 
          */
-        std::pair<double, double> stancePhaseTrajectory(double t);
+        Eigen::Vector3d stancePhaseTrajectory(double t);
 
         /**
          * @brief Generated leg's support phase trajectory based on constant velocity model 
          * 
          * @param t time
-         * @return std::pair<double, double>
+         * @return Eigen::Vector3d
          */
-        std::pair<double, double> supportPhaseTrajectory(double t);
+        Eigen::Vector3d supportPhaseTrajectory(double t);
 
     private:
         Gait gait_;

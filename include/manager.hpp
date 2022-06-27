@@ -8,7 +8,7 @@
 #include <vector>
 #include <gait.hpp>
 #include <claw.hpp>
-
+#include <interface.hpp>
 #include <inverseKinematics.hpp>
 #include <forwardKinematics.hpp>
 #include <trajectory.hpp>
@@ -36,8 +36,6 @@ class Manager {
         double commandValue_ = 0;
         double commandDirection_ = 0;
         double batteryVoltage_ = 0;
-        const double abductionCPRAngleRelation_ = claw_.countsPerRevolution * claw_.reductionHA / 360;
-        const double flexionCPRAngleRelation_ = claw_.countsPerRevolution * claw_.reductionHF / 360;
         const std::string canDevice_ = "can0";
         std::string state_;
         std::vector<std::vector<double>> jointAngles_;

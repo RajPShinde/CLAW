@@ -10,12 +10,12 @@ Manager::~Manager(){
 
 int Manager::begin(){
     odrive_can_ros::CANSimple master;
-    if ( !( master.add_axis(1, "odrive_axis_1") && master.add_axis(2, "odrive_axis_2") &&
-            master.add_axis(3, "odrive_axis_3") && master.add_axis(4, "odrive_axis_4") &&
-            master.add_axis(5, "odrive_axis_5") && master.add_axis(6, "odrive_axis_6") &&
-            master.add_axis(7, "odrive_axis_7") && master.add_axis(8, "odrive_axis_8") &&
-            master.add_axis(9, "odrive_axis_9") && master.add_axis(10, "odrive_axis_10") &&
-            master.add_axis(11, "odrive_axis_11") && master.add_axis(12, "odrive_axis_12")))
+    if ( !( master.add_axis(1, "HF1") && master.add_axis(2, "KF1") &&
+            master.add_axis(3, "HA1") && master.add_axis(4, "HA2") &&
+            master.add_axis(5, "HF2") && master.add_axis(6, "KF2") &&
+            master.add_axis(7, "HF3") && master.add_axis(8, "KF3") &&
+            master.add_axis(9, "HA3") && master.add_axis(10, "HA4") &&
+            master.add_axis(11, "HF4") && master.add_axis(12, "KF4")))
     {
         ROS_ERROR_STREAM("Failed to create one or more axis. Aborting");
         return -1;
@@ -81,7 +81,7 @@ int Manager::begin(){
         auto stanceCoordinate = traj.stancePhaseTrajectory(seconds);
         auto supportCoordinate = traj.supportPhaseTrajectory(seconds);
 
-        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirectiomn
+        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirection
         double x, y, z;
 
         // Perform Inverse Kinematics & Obtain Joint Angles
@@ -116,9 +116,13 @@ int Manager::begin(){
 }
 
 std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
-    return {claw_.encoderOffset[n-1][0] + angle[0] * abductionCPRAngleRelation_, claw_.encoderOffset[n-1][1] + angle[1] * flexionCPRAngleRelation_, claw_.encoderOffset[n-1][2] + angle[2] * flexionCPRAngleRelation_};
+    return {claw_.encoderOffset[n-1][0] + angle[0] * claw_.abductionCPRAngleRelation, 
+            claw_.encoderOffset[n-1][1] + angle[1] * claw_.flexionCPRAngleRelation, 
+            claw_.encoderOffset[n-1][2] + angle[2] * claw_.flexionCPRAngleRelation};
 }
 
 std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
-    return {(position[0] - claw_.encoderOffset[n-1][0]) / abductionCPRAngleRelation_, (position[1] - claw_.encoderOffset[n-1][1]) / flexionCPRAngleRelation_, (position[2] - claw_.encoderOffset[n-1][2]) / flexionCPRAngleRelation_};
+    return {(position[0] - claw_.encoderOffset[n-1][0]) / claw_.abductionCPRAngleRelation, 
+            (position[1] - claw_.encoderOffset[n-1][1]) / claw_.flexionCPRAngleRelation, 
+            (position[2] - claw_.encoderOffset[n-1][2]) / claw_.flexionCPRAngleRelation};
 }

@@ -3,7 +3,7 @@
 
 /**
  * @file inverseKinematics.hpp
- * @author your name (you@domain.com)
+ * @author Raj Shinde
  * @brief 
  * @version 0.1
  * @date 2022-04-08
@@ -26,6 +26,7 @@ class InverseKinematics {
          * @param x x in leg frame
          * @param y y in leg frame
          * @param z z in leg frame
+         * @param n leg number
          * @return std::vector<double> 
          */
         std::vector<double> computeJointAngles(double x, double y, double z, int n);
