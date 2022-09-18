@@ -1,6 +1,6 @@
 #include <manager.hpp>
 
-Manager::Manager() {
+Manager::Manager(ros::NodeHandle &nh) {
     ROS_INFO_STREAM("Initializing Robot");
     begin();
 }
@@ -42,8 +42,8 @@ int Manager::begin(){
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     // Background Thread
-    std::thread thr( [&master, this]() {
-        while(master.is_ready()) {
+    std::thread sensorData( [&master, this]() {
+        while(master.is_ready() && managerStatus) {
             // Update Joint Angles
             jointAngles_ = {{master.axis("HA1").pos_enc_estimate, master.axis("HF1").pos_enc_estimate, master.axis("KF1").pos_enc_estimate},
                             {master.axis("HA2").pos_enc_estimate, master.axis("HF2").pos_enc_estimate, master.axis("KF2").pos_enc_estimate},
@@ -63,7 +63,6 @@ int Manager::begin(){
     // Initialize Legs
     Gait gait_(2, 2, 2, 2, "test");
     Trajectory traj(gait_);
-
 
     // Temporary commands
     commandValue_ = 1;
@@ -85,10 +84,10 @@ int Manager::begin(){
         double x, y, z;
 
         // Perform Inverse Kinematics & Obtain Joint Angles
-        auto leg1 = anglesToPosition(ik_.computeJointAngles(x, y, z, 1) ,1);
-        auto leg2 = anglesToPosition(ik_.computeJointAngles(x, y, z, 2), 2);
-        auto leg3 = anglesToPosition(ik_.computeJointAngles(x, y, z, 3), 3);
-        auto leg4 = anglesToPosition(ik_.computeJointAngles(x, y, z, 4), 4);
+        auto leg1 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 1) ,1);
+        auto leg2 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 2), 2);
+        auto leg3 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 3), 3);
+        auto leg4 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 4), 4);
 
         // Send Joint Positions to respective odrive axis
         // Hip Abduction
@@ -109,20 +108,24 @@ int Manager::begin(){
         master.set_input_pos(master.axis("KF3"), leg3[2]);
         master.set_input_pos(master.axis("KF4"), leg4[2]);
 
+        ros::spinOnce();
+
         // Reset time after half gait cycle is complete
         if(microseconds >= gait_.tm * 1e+6)
             start = std::chrono::high_resolution_clock::now();
     }
+    managerStatus = false;
+    sensorData.join();
 }
 
 std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
-    return {claw_.encoderOffset[n-1][0] + angle[0] * claw_.abductionCPRAngleRelation, 
-            claw_.encoderOffset[n-1][1] + angle[1] * claw_.flexionCPRAngleRelation, 
-            claw_.encoderOffset[n-1][2] + angle[2] * claw_.flexionCPRAngleRelation};
+    return {Claw::encoderOffset[n-1][0] + angle[0] * Claw::abductionCPRAngleRelation, 
+            Claw::encoderOffset[n-1][1] + angle[1] * Claw::flexionCPRAngleRelation, 
+            Claw::encoderOffset[n-1][2] + angle[2] * Claw::flexionCPRAngleRelation};
 }
 
 std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
-    return {(position[0] - claw_.encoderOffset[n-1][0]) / claw_.abductionCPRAngleRelation, 
-            (position[1] - claw_.encoderOffset[n-1][1]) / claw_.flexionCPRAngleRelation, 
-            (position[2] - claw_.encoderOffset[n-1][2]) / claw_.flexionCPRAngleRelation};
+    return {(position[0] - Claw::encoderOffset[n-1][0]) / Claw::abductionCPRAngleRelation, 
+            (position[1] - Claw::encoderOffset[n-1][1]) / Claw::flexionCPRAngleRelation, 
+            (position[2] - Claw::encoderOffset[n-1][2]) / Claw::flexionCPRAngleRelation};
 }
