@@ -1,3 +1,0 @@
-[submodule "lib/odrive_can"]
-	path = lib/odrive_can
-	url = https://github.com/swankun/odrive_can
