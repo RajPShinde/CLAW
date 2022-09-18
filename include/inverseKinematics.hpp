@@ -29,10 +29,7 @@ class InverseKinematics {
          * @param n leg number
          * @return std::vector<double> 
          */
-        std::vector<double> computeJointAngles(double x, double y, double z, int n);
-
-    private:
-        Claw claw_;
+        static std::vector<double> computeJointAngles(double x, double y, double z, int n);
 };
 
 #endif  //  INCLUDE_INVERSEKINEMATICS_HPP_

@@ -1,3 +1,13 @@
+/**
+ * @file manager.hpp
+ * @author Raj Shinde (rajprakashshinde07@gmail.com)
+ * @brief 
+ * @version 0.1
+ * @date 2022-09-01
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef INCLUDE_MANAGER_HPP_
 #define INCLUDE_MANAGER_HPP_
 
@@ -15,10 +25,9 @@
 #include <odrive_can_ros/can_simple.hpp>
 #include <socketcan_interface/socketcan.h>
 
-
 class Manager {
     public:
-        Manager();
+        Manager(ros::NodeHandle &nh);
 
         ~Manager();
 
@@ -29,10 +38,6 @@ class Manager {
         std::vector<double> positionToAngle(std::vector<int> position, int n);
 
     private:
-        Claw claw_;
-        InverseKinematics ik_;
-        ForwardKinematics fk_;
-
         double commandValue_ = 0;
         double commandDirection_ = 0;
         double batteryVoltage_ = 0;

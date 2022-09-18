@@ -50,7 +50,7 @@ Eigen::Matrix4d ForwardKinematics::worldToBaseH(double xTrans, double yTrans, do
 }
 
 Eigen::Matrix4d ForwardKinematics::baseToLegH(int n){
-    return translationH(claw_.bodyTF[n-1][0], claw_.bodyTF[n-1][1], claw_.bodyTF[n-1][2]) * rotationH(claw_.bodyTF[n-1][3], claw_.bodyTF[n-1][4], claw_.bodyTF[n-1][5]);
+    return translationH(Claw::bodyTF[n-1][0], Claw::bodyTF[n-1][1], Claw::bodyTF[n-1][2]) * rotationH(Claw::bodyTF[n-1][3], Claw::bodyTF[n-1][4], Claw::bodyTF[n-1][5]);
 }
 
 Eigen::Matrix4d ForwardKinematics::worldToLegH(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, int n){
@@ -61,7 +61,7 @@ Eigen::Matrix4d ForwardKinematics::legToFootH(std::vector<double> jointAngles, i
     double dir = 1;
     if(n == (2 || 3))
         dir = -1;
-    return ai(jointAngles[0], claw_.DH[0][1], claw_.DH[0][2], claw_.DH[0][3]) * ai(jointAngles[1], dir*claw_.DH[1][1], claw_.DH[1][2], claw_.DH[1][3]) * ai(jointAngles[2], claw_.DH[2][1], claw_.DH[2][2], claw_.DH[2][3]);
+    return ai(jointAngles[0], Claw::DH[0][1], Claw::DH[0][2], Claw::DH[0][3]) * ai(jointAngles[1], dir*Claw::DH[1][1], Claw::DH[1][2], Claw::DH[1][3]) * ai(jointAngles[2], Claw::DH[2][1], Claw::DH[2][2], Claw::DH[2][3]);
 }
 
 Eigen::Vector3d ForwardKinematics::footInLegFrame(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, Eigen::Vector3d p, int n){
