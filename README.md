@@ -10,14 +10,34 @@
 An Open Source Quadruped Robot.
 
 ## Dependencies
-1. C++ 14
-2. Python 3
-3. ROS Melodic
-4. Eigen 3.4.0
-5. [libi2c](https://github.com/amaork/libi2c)
-6. [odrive_can](https://github.com/swankun/odrive_can)
+1. ROS Melodic
+2. JetPack 4.5
+3. C++ 14
+4. Python 3.8
+5. Eigen 3.4.0
+6. [libi2c](https://github.com/amaork/libi2c)
+7. [odrive_can](https://github.com/swankun/odrive_can)
+8. Adafru
+
+## Install & Build
+```
+mkdir -p ~/claw_ws/src
+cd ~/claw_ws/src
+git clone https://github.com/RajPShinde/CLAW
+cd CLAW
+sudo ./install.sh
+```
 
 ## TO-DO's
+### CAD
+- [x] Parts
+- [ ] Assembly
+- [ ] URDF
+### Hardware Interface
+- [x] PCB Design
+- [x] SPI Test
+- [x] I2C Test (MPU9255 & SH1106)
+- [x] Socket CAN Test (MCP2515)
 ### Kinematics
 - [x] Inverse Kinematics
 - [x] Forward Kinematics
@@ -26,9 +46,6 @@ An Open Source Quadruped Robot.
 ### Trajectory Planning
 - [x] Compound Cycloid
 - [x] Jerk Minimized
-### Hardware Interface
-- [ ] odrive CAN
-- [ ] OLED I2C
 ### Visualization
 - [ ] URDF
 - [ ] Joint State Publishers
