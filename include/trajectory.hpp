@@ -4,6 +4,7 @@
 #include <math.h>
 #include <polynomial.hpp>
 #include <gait.hpp>
+#include <data.hpp>
 
 class Trajectory {
     public:
@@ -22,25 +23,25 @@ class Trajectory {
          * @param yT y final
          * @param zT z final
          * @param t time
-         * @return Eigen::Vector3d 
+         * @return Point
          */
-        Eigen::Vector3d jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double t);
+        Point jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double t);
 
         /**
          * @brief Generates leg's swing phase trajectory based on compound cycloid
          * 
          * @param t time
-         * @return Eigen::Vector3d 
+         * @return Point
          */
-        Eigen::Vector3d stancePhaseTrajectory(double t);
+        Point stancePhaseTrajectory(double t);
 
         /**
          * @brief Generated leg's support phase trajectory based on constant velocity model 
          * 
          * @param t time
-         * @return Eigen::Vector3d
+         * @return Point
          */
-        Eigen::Vector3d supportPhaseTrajectory(double t);
+        Point supportPhaseTrajectory(double t);
 
     private:
         Gait gait_;
