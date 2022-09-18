@@ -1,0 +1,131 @@
+// SPDX-License-Identifier: GPL-2.0-only
+/*
+ * Jetson Device-tree overlay for
+ *   MCP2515
+ *
+ * Copyright (c) 2020 Seeed Technology Co,Ltd - https://www.seeed.cc.
+ * All rights reserved.
+ *
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/pinctrl-tegra.h>
+#include <dt-bindings/gpio/tegra-gpio.h>
+
+/ {
+	overlay-name = "MCP251x CAN Controller";
+	compatible = "nvidia,p3449-0000-b00+p3448-0000-b00\0nvidia,p3449-0000-a02+p3448-0000-a02";
+
+    
+
+   	fragment@0 {
+		target-path = "/";
+		__overlay__ {
+			clocks {
+				can_clock: can_clock {
+					compatible = "fixed-clock";
+					#clock-cells = <0>;
+					clock-frequency = <8000000>;
+					clock-accuracy = <100>;
+				};
+			};
+		};
+	};
+
+	fragment@1 {
+		target = <&spi0>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			spi@0 {
+				status = "okay";
+				compatible = "microchip,mcp2515";
+				reg = <0x0>;
+				spi-max-frequency = <10000000>;
+				nvidia,enable-hw-based-cs;
+				nvidia,rx-clk-tap-delay = <0x7>;
+				clocks = <&can_clock>;
+				interrupt-parent = <&gpio>;
+				interrupts = <TEGRA_GPIO(Z, 0) 0x1>;
+				controller-data {
+					nvidia,cs-setup-clk-count = <0x1e>;
+					nvidia,cs-hold-clk-count = <0x1e>;
+					nvidia,rx-clk-tap-delay = <0x1f>;
+					nvidia,tx-clk-tap-delay = <0x0>;
+				};
+			};
+			spi@1 {
+				status = "disabled";
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&pinmux>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&hdr40_pinmux>;
+
+			hdr40_pinmux: header-40pin-pinmux {
+				pin19 {
+					nvidia,pins = "spi1_mosi_pc0";
+					nvidia,function = "spi1";
+					nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin21 {
+					nvidia,pins = "spi1_miso_pc1";
+					nvidia,function = "spi1";
+					nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin23 {
+					nvidia,pins = "spi1_sck_pc2";
+					nvidia,function = "spi1";
+					nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin24 {
+					nvidia,pins = "spi1_cs0_pc3";
+					nvidia,function = "spi1";
+					nvidia,pull = <TEGRA_PIN_PULL_UP>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin37 {
+					nvidia,pins = "spi2_mosi_pb4";
+					nvidia,function = "spi2";
+					nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin22 {
+					nvidia,pins = "spi2_miso_pb5";
+					nvidia,function = "spi2";
+					nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin13 {
+					nvidia,pins = "spi2_sck_pb6";
+					nvidia,function = "spi2";
+					nvidia,pull = <TEGRA_PIN_PULL_DOWN>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+				pin18 {
+					nvidia,pins = "spi2_cs0_pb7";
+					nvidia,function = "spi2";
+					nvidia,pull = <TEGRA_PIN_PULL_UP>;
+					nvidia,tristate = <TEGRA_PIN_DISABLE>;
+					nvidia,enable-input = <TEGRA_PIN_ENABLE>;
+				};
+			};
+		};
+	};
+};
