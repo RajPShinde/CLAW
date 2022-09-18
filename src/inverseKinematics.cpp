@@ -12,7 +12,7 @@ std::vector<double> InverseKinematics::computeJointAngles(double x, double y, do
     r = std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 
     if(n == (1 || 4))
-        alpha = std::atan2(x, y) - std::atan2(std::sqrt(std::pow(r, 2) - std::pow(Claw::.d, 2)), Claw::.d);
+        alpha = std::atan2(x, y) - std::atan2(std::sqrt(std::pow(r, 2) - std::pow(Claw::d, 2)), Claw::d);
     else
         alpha = std::atan2(x, y) + std::atan2(-1 * std::sqrt(std::pow(r, 2) - std::pow(Claw::d, 2)), -1 * Claw::d);
 

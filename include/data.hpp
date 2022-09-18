@@ -1,5 +1,5 @@
-#ifndef INCLUDE_INTERFACE_HPP_
-#define INCLUDE_INTERFACE_HPP_
+#ifndef INCLUDE_DATA_HPP_
+#define INCLUDE_DATA_HPP_
 
 struct Point{
     double x;
@@ -30,4 +30,4 @@ struct OdrivePosition{
     double gammaPosition;
 };
 
-#endif  //  INCLUDE_INTERFACE_HPP_
+#endif  //  INCLUDE_DATA_HPP_

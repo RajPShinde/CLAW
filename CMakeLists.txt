@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.2.3)
 project (claw)
-add_compile_options(-std=c++14)
+add_compile_options(-std=c++17)
 
 find_package(catkin REQUIRED
 			 roscpp
@@ -29,7 +29,7 @@ endif()
 
 include_directories(include lib/odrive_can/include/ ${catkin_INCLUDE_DIRS})
 
-add_executable(clawManager src/main.cpp src/manager.cpp src/claw.cpp src/forwardKinematics.cpp src/inverseKinematics.cpp 
+add_executable(clawManager src/main.cpp src/manager.cpp src/forwardKinematics.cpp src/inverseKinematics.cpp 
 			   src/velocityKinematics.cpp src/trajectory.cpp src/gait.cpp src/polynomial.cpp lib/odrive_can/src/can_simple.cpp
 			   src/interface.cpp)
 target_link_libraries(clawManager ${catkin_LIBRARIES})

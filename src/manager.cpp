@@ -52,7 +52,7 @@ int Manager::begin(){
             
             // Update and Check Battery Voltage
             batteryVoltage_ = master.axis("HA1").vbus_voltage;
-            if(batteryVoltage_ < claw_.minBatteryVoltage){
+            if(batteryVoltage_ < Claw::minBatteryVoltage){
                 ROS_ERROR_STREAM("Battery Voltage Low");
                 return -1;
             }

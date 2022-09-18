@@ -38,6 +38,7 @@ class Manager {
         std::vector<double> positionToAngle(std::vector<int> position, int n);
 
     private:
+        bool managerStatus = true;
         double commandValue_ = 0;
         double commandDirection_ = 0;
         double batteryVoltage_ = 0;

@@ -21,7 +21,7 @@ class Claw {
         static constexpr double reductionHA = 3;
         static constexpr double reductionHF = 10.8;
         static constexpr double reductionKF = 10.8;
-        static constexpr double bodyTF[6][4] = {{ 1,  1, 0, 0, M_PI/2, 0},   // To Front Left Shoulder
+        static constexpr double bodyTF[4][6] = {{ 1,  1, 0, 0, M_PI/2, 0},   // To Front Left Shoulder
                                                 { 1, -1, 0, 0, M_PI/2, 0},   // To Front Right Shoulder
                                                 {-1, -1, 0, 0, M_PI/2, 0},   // To Rear Left Shoulder
                                                 {-1,  1, 0, 0, M_PI/2, 0}};  // To Rear Right Shoulder
@@ -39,10 +39,10 @@ class Claw {
         static constexpr double countsPerRevolution = 2000;
         static constexpr double abductionCPRAngleRelation = countsPerRevolution * reductionHA / 360;
         static constexpr double flexionCPRAngleRelation = countsPerRevolution * reductionHF / 360;
-        static constexpr int encoderOffset = {{0, 0, 0},
-                                              {0, 0, 0},
-                                              {0, 0, 0},
-                                              {0, 0, 0}};
+        static constexpr int encoderOffset[4][3] = {{0, 0, 0},
+                                                    {0, 0, 0},
+                                                    {0, 0, 0},
+                                                    {0, 0, 0}};
 
         // General Parameters
         std::string legConfiguration = ">>";
