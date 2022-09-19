@@ -8,11 +8,11 @@
 class Claw {
     public:
         // Mechanical Parameters
-        static constexpr double femur = 0.20;
-        static constexpr double tibia = 0.20;
-        static constexpr double link1 = 0.20; // femur
-        static constexpr double link2 = 0.20; // tibia
-        static constexpr double a = 0.01;
+        static constexpr double femur = 0.2245;
+        static constexpr double tibia = 0.238;
+        static constexpr double link1 = 0.2245; // femur
+        static constexpr double link2 = 0.238; // tibia
+        static constexpr double a = 0.03617;
         static constexpr double d = 0.01;
         static constexpr double idleBaseHeight = 0.40;
         static constexpr double baseMaxHeight = 0.45;
