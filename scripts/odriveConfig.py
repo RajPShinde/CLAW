@@ -51,17 +51,21 @@ def main():
 
     odrv0.can.config.baud_rate = 250000
 
+    odrv0.config.dc_max_negative_current=-0.09
+
     print('Configuring Axis 0');
     odrv0.axis0.config.can.node_id = (odriveNo -1)*2
-    odrv0.axis0.motor.config.pole_pairs=20
+    odrv0.axis0.motor.config.pole_pairs = 20
     odrv0.axis0.encoder.config.cpr = 2000
-    odrv0.axis0.motor.config.torque_constant=0.091888889
+    odrv0.axis0.motor.config.torque_constant = 0.091888889
 
     odrv0.axis0.motor.config.current_lim = 30
-    odrv0.axis0.controller.config.vel_limit=10
+    odrv0.axis0.motor.config.calibration_current = 15
+    odrv0.axis0.motor.config.resistance_calib_max_voltage = 4
+    odrv0.axis0.controller.config.vel_limit = 30
 
     calibrateMotor(odrv0, odrv0.axis0)
-    odrv0.axis0.motor.config.pre_calibrated =True
+    odrv0.axis0.motor.config.pre_calibrated = True
 
     odrv0.axis0.encoder.config.use_index =True
     calibrateEncoder(odrv0, odrv0.axis0)
@@ -69,7 +73,7 @@ def main():
     odrv0.axis0.config.startup_encoder_index_search = True
     odrv0.axis0.config.startup_encoder_offset_calibration = False
 
-    odrv0.axis0.config.startup_closed_loop_control = True
+    odrv0.axis0.config.startup_closed_loop_control = False
 
     print('Configuring Axis 1');
     odrv0.axis1.config.can.node_id = (odriveNo -1)*2 + 1
@@ -78,10 +82,12 @@ def main():
     odrv0.axis1.motor.config.torque_constant=0.091888889
 
     odrv0.axis1.motor.config.current_lim = 30
-    odrv0.axis1.controller.config.vel_limit=10
+    odrv0.axis1.motor.config.calibration_current = 15
+    odrv0.axis1.motor.config.resistance_calib_max_voltage = 4
+    odrv0.axis1.controller.config.vel_limit = 30
 
     calibrateMotor(odrv0, odrv0.axis1)
-    odrv0.axis1.motor.config.pre_calibrated =True
+    odrv0.axis1.motor.config.pre_calibrated = True
 
     odrv0.axis1.encoder.config.use_index =True
     calibrateEncoder(odrv0, odrv0.axis1)
@@ -89,10 +95,14 @@ def main():
     odrv0.axis1.config.startup_encoder_index_search = True
     odrv0.axis1.config.startup_encoder_offset_calibration = False
 
-    odrv0.axis1.config.startup_closed_loop_control = True
+    odrv0.axis1.config.startup_closed_loop_control = False
 
     odrv0.save_configuration()
 
 
 main()
+
+# print(odrv0.axis1.error)
+# print(odrv0.axis1.motor.error)
+# print(odrv0.error)
 
