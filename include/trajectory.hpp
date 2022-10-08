@@ -5,10 +5,11 @@
 #include <polynomial.hpp>
 #include <gait.hpp>
 #include <data.hpp>
+#include <ros/ros.h>
 
 class Trajectory {
     public:
-        Trajectory(Gait &obj);
+        Trajectory(Gait &obj, std::string legTrajectoryType_);
     
         ~Trajectory();
 
@@ -43,8 +44,14 @@ class Trajectory {
          */
         Point supportPhaseTrajectory(double t);
 
+        long int factorial(int n);
+
+        void setBezierControlPoints(std::vector<Point> points);
+
     private:
         Gait gait_;
+        std::string legTrajectoryType_;
+        std::vector<Point> controlPoints_;
 };
 
 #endif  //  INCLUDE_TRAJECTORY_HPP_
