@@ -26,7 +26,7 @@ rosdep update
 
 # Dependencies
 sudo apt-get install nano psmics htop
-sudo apt-get install ros-melodic-socketcan-interface
+sudo apt-get install ros-melodic-socketcan-interface ros-melodic-joint-state-publisher-gui sudo apt-get install ros-melodic-jsk-rviz-plugins
 sudo apt-get install python3.8-dev python3-pip -y
 python3.8 -m pip install pip setuptools wheel 
 python3.8 -m pip install luma.oled adafruit-circuitpython-neopixel-spi python-can
