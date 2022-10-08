@@ -14,17 +14,17 @@ class Claw {
         static constexpr double link2 = 0.238; // tibia
         static constexpr double a = 0.03617;
         static constexpr double d = 0.00;
-        static constexpr double idleBaseHeight = 0.40;
+        static constexpr double idleBaseHeight = 0.35;
         static constexpr double baseMaxHeight = 0.45;
         static constexpr double baseMinHeight = 0.20;
         static constexpr int noOfActuators = 12;
         static constexpr double reductionHA = 3;
         static constexpr double reductionHF = 10.8;
         static constexpr double reductionKF = 10.8;
-        static constexpr double bodyTF[4][6] = {{ 1,  1, 0, 0, M_PI/2, 0},   // To Front Left Shoulder
-                                                { 1, -1, 0, 0, M_PI/2, 0},   // To Front Right Shoulder
-                                                {-1, -1, 0, 0, M_PI/2, 0},   // To Rear Left Shoulder
-                                                {-1,  1, 0, 0, M_PI/2, 0}};  // To Rear Right Shoulder
+        static constexpr double bodyTF[4][6] = {{ 0.066 + 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Left Shoulder
+                                                { 0.066 + 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Right Shoulder
+                                                {-0.066 - 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Rear Left Shoulder
+                                                {-0.066 - 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0}};  // To Rear Right Shoulder
 
                                          //  d  a  alpha
         static constexpr double DH[3][3] = {{0, a,     -90},  // HA->HF
