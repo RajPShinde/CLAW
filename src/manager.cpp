@@ -2,6 +2,7 @@
 
 Manager::Manager(ros::NodeHandle &nh) {
     ROS_INFO_STREAM("Initializing Robot");
+    jointStatePublisher = nh.advertise<sensor_msgs::JointState>("/joint_states", 50, true);
     begin();
 }
 
@@ -59,31 +60,28 @@ int Manager::begin(){
             master.get_encoder_count(master.axis("HA3"));
             master.get_encoder_count(master.axis("HF3"));
             master.get_encoder_count(master.axis("KF3"));
-            ROS_ERROR_STREAM(master.axis("HA3").encoder_shadow_count);
-            ROS_ERROR_STREAM(master.axis("HF3").encoder_shadow_count);
-            ROS_ERROR_STREAM(master.axis("KF3").encoder_shadow_count);
 
             // ROS_ERROR_STREAM(encoderShadowCount_[2][1]);
             
             // Check and Update Battery Voltage
             master.get_vbus_voltage(master.axis("KF1"));
             batteryVoltage_ = master.axis("KF1").vbus_voltage;
-            ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
             if(batteryVoltage_ < Claw::minBatteryVoltage){
                 ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
                 // return -1;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
         } 
     } );
 
     // Initialize Legs
-    Gait gait_(2, 2, 2, 2, "test");
+    Gait gait_(0.15, 0.07, 0.1, 1, "test");
     Trajectory traj(gait_);
 
     // commands
     commandValue_ = 1;
     commandDirection_ = 0;
+    int phaseSwitch = 0; 
 
     // Start Time
     auto start = std::chrono::high_resolution_clock::now();
@@ -91,20 +89,53 @@ int Manager::begin(){
     while(ros::ok()){
         auto elapsed = std::chrono::high_resolution_clock::now() - start;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        long long seconds = microseconds * 1e-6;
+        double seconds = microseconds * 1e-6;
+
+
+        // Reset time after half gait cycle is complete
+        if(microseconds  * 1e-6 >= gait_.tm){
+            start = std::chrono::high_resolution_clock::now();
+            phaseSwitch = !phaseSwitch;
+            ROS_INFO_STREAM(phaseSwitch);
+        }
         
-        // // Get Swing & Stance Trajectory Coordinates for time = seconds
-        // auto stanceCoordinate = traj.stancePhaseTrajectory(seconds);
-        // auto supportCoordinate = traj.supportPhaseTrajectory(seconds);
+        // Get Swing & Stance Trajectory Coordinates for time = seconds
+        auto stanceCoordinate = traj.stancePhaseTrajectory(seconds);
+        auto supportCoordinate = traj.supportPhaseTrajectory(seconds);
 
-        // // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirection
-        // double x, y, z;
+        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirection
+        double x1, y1, z1;
+        double x2, y2, z2;
 
-        // // Perform Inverse Kinematics & Obtain Joint Angles
-        // auto leg1 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 1) ,1);
-        // auto leg2 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 2), 2);
-        // auto leg3 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 3), 3);
-        // auto leg4 = anglesToPosition(InverseKinematics::computeJointAngles(x, y, z, 4), 4);
+        if(phaseSwitch){
+            x1 = -stanceCoordinate.y + 0.30;
+            y1 = 0;
+            z1 = -stanceCoordinate.x;
+            x2 = -supportCoordinate.y + 0.30;
+            y2 = 0;
+            z2 = -supportCoordinate.x;
+        }
+        else{
+            x1 = -supportCoordinate.y + 0.30;
+            y1 = 0;
+            z1 = -supportCoordinate.x;
+            x2 = -stanceCoordinate.y + 0.30;
+            y2 = 0;
+            z2 = -stanceCoordinate.x;
+        }
+
+        // Perform Inverse Kinematics & Obtain Joint Angles
+        // auto leg1 = anglesToPosition(InverseKinematics::computeJointAngles(x1, y1, z1, 1) ,1);
+        // auto leg2 = anglesToPosition(InverseKinematics::computeJointAngles(x2, y2, z2, 2), 2);
+        // auto leg3 = anglesToPosition(InverseKinematics::computeJointAngles(x1, y1, z1, 3), 3);
+        // auto leg4 = anglesToPosition(InverseKinematics::computeJointAngles(x2, y2, z2, 4), 4);
+        // auto jerk = jerkMinimizedTrajectory(0, 0, 0, 0, -0.1, 0, 2, seconds);
+        // InverseKinematics::computeJointAngles(jerk.y+0.2, 0, 0, 1)
+
+        statePublisher(InverseKinematics::computeJointAngles(x1, y1, z1, 1),
+                       InverseKinematics::computeJointAngles(x2, y2, z2, 2),
+                       InverseKinematics::computeJointAngles(x1, y1, z1, 3),
+                       InverseKinematics::computeJointAngles(x2, y2, z2, 4));
 
         // Send Joint Positions to respective odrive axis
         // for(int name = 0; name<name.size(); name++){
@@ -132,9 +163,7 @@ int Manager::begin(){
 
         ros::spinOnce();
 
-        // Reset time after half gait cycle is complete
-        if(microseconds >= gait_.tm * 1e+6)
-            start = std::chrono::high_resolution_clock::now();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     managerStatus = false;
     sensorData.join();
@@ -151,4 +180,25 @@ std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
     return {(position[0] - Claw::encoderOffset[n-1][0]) / Claw::abductionCPRAngleRelation, 
             (position[1] - Claw::encoderOffset[n-1][1]) / Claw::flexionCPRAngleRelation, 
             (position[2] - Claw::encoderOffset[n-1][2]) / Claw::flexionCPRAngleRelation};
+}
+
+void Manager::statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4){
+    sensor_msgs::JointState state;
+    state.header.frame_id = "";
+    state.header.stamp = ros::Time::now();
+    state.name  = {"HA1", "HF1", "KF1", "HA2", "HF2", "KF2", "HA3", "HF3", "KF3", "HA4", "HF4", "KF4"};
+    state.position.resize(state.name.size());
+    state.position[0] = l1[0];
+    state.position[1] = l1[1];
+    state.position[2] = l1[2];
+    state.position[3] = l2[0];
+    state.position[4] = l2[1];
+    state.position[5] = l2[2];
+    state.position[6] = l3[0];
+    state.position[7] = l3[1];
+    state.position[8] = l3[2];
+    state.position[9] = l4[0];
+    state.position[10] = l4[1];
+    state.position[11] = l4[2];
+    jointStatePublisher.publish(state);
 }

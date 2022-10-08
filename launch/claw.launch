@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
+  
+  <!-- <param name="robot_description" textfile="$(find claw)/urdf/claw.urdf" /> -->
+    
+  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /> -->
+
   <!-- Robot Manager -->
   <node name="clawManager" pkg="claw" type="clawManager" output="screen"/> 
 
   <!-- Rviz -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" /> -->
 
+  <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg1_link2 foot1 40" />
 </launch>

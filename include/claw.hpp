@@ -13,7 +13,7 @@ class Claw {
         static constexpr double link1 = 0.2245; // femur
         static constexpr double link2 = 0.238; // tibia
         static constexpr double a = 0.03617;
-        static constexpr double d = 0.01;
+        static constexpr double d = 0.00;
         static constexpr double idleBaseHeight = 0.40;
         static constexpr double baseMaxHeight = 0.45;
         static constexpr double baseMinHeight = 0.20;

@@ -24,6 +24,7 @@
 #include <trajectory.hpp>
 #include <odrive_can_ros/can_simple.hpp>
 #include <socketcan_interface/socketcan.h>
+#include <sensor_msgs/JointState.h>
 
 class Manager {
     public:
@@ -36,6 +37,8 @@ class Manager {
         std::vector<int> anglesToPosition(std::vector<double> angle, int n);
 
         std::vector<double> positionToAngle(std::vector<int> position, int n);
+
+        void statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4);
 
     private:
         bool managerStatus = true;
@@ -51,6 +54,8 @@ class Manager {
                                               "HA3", "HF3", "KF3", 
                                               "HA4", "HF4", "KF4"};
         std::vector<std::vector<int>> encoderShadowCount_;
+
+        ros::Publisher jointStatePublisher;
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_
