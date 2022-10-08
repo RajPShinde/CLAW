@@ -25,7 +25,7 @@ class Trajectory {
          * @param t time
          * @return Point
          */
-        Point jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double t);
+        Point jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double T, double t);
 
         /**
          * @brief Generates leg's swing phase trajectory based on compound cycloid
