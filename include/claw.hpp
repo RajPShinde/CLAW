@@ -14,9 +14,9 @@ class Claw {
         static constexpr double link2 = 0.238; // tibia
         static constexpr double a = 0.03617;
         static constexpr double d = 0.00;
-        static constexpr double idleBaseHeight = 0.35;
-        static constexpr double baseMaxHeight = 0.45;
-        static constexpr double baseMinHeight = 0.20;
+        static constexpr double idleLegHeight = 0.35;
+        static constexpr double legMaxHeight = 0.45;
+        static constexpr double legMinHeight = 0.20;
         static constexpr int noOfActuators = 12;
         static constexpr double reductionHA = 3;
         static constexpr double reductionHF = 10.8;
@@ -43,6 +43,10 @@ class Claw {
                                                     {0, 0, 0},
                                                     {0, 0, 0},
                                                     {0, 0, 0}};
+
+
+        // Network
+        static constexpr char canDevice[] = "can0";
 
         // General Parameters
         std::string legConfiguration = ">>";

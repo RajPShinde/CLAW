@@ -10,11 +10,7 @@ struct Point{
     Point(double a, double b, double c): x(a), y(b), z(c) {};
 
     bool operator == (const Point &p) const {
-        return (x == p.x && y == p.y);
-    }
-
-    std::vector<double> operator = (const Point &p) const {
-        return {p.x, p.y, p.z};
+        return (x == p.x && y == p.y && z == p.z);
     }
 };
 
