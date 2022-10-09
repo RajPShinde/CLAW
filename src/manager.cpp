@@ -2,7 +2,7 @@
 
 Manager::Manager(ros::NodeHandle &nh) {
     ROS_INFO_STREAM("Initializing Robot");
-    jointStatePublisher = nh.advertise<sensor_msgs::JointState>("/joint_states", 50, true);
+    jointStatePublisher_ = nh.advertise<sensor_msgs::JointState>("/joint_states", 50, true);
     begin();
 }
 
@@ -10,6 +10,8 @@ Manager::~Manager(){
 }
 
 int Manager::begin(){
+
+    // Add all Odrive Axis's
     odrive_can_ros::CANSimple master;
     if ( !( master.add_axis(0, "KF1") && master.add_axis(1, "HF1") &&
             master.add_axis(2, "HA2") && master.add_axis(3, "HA1") &&
@@ -23,9 +25,8 @@ int Manager::begin(){
     }
 
     // Create Interface to SocketCAN 
-    const std::string canDevice_ = "can0";
     can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
-    if (!driver->init(canDevice_, 0, can::NoSettings::create()))
+    if (!driver->init(Claw::canDevice, 0, can::NoSettings::create()))
     {
         ROS_ERROR_STREAM("Failed to initialize can device");
         return -1;
@@ -68,19 +69,17 @@ int Manager::begin(){
             batteryVoltage_ = master.axis("KF1").vbus_voltage;
             if(batteryVoltage_ < Claw::minBatteryVoltage){
                 ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
-                // return -1;
+                return -1;
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         } 
     } );
 
     // Initialize Legs
-    Gait gait_(0.15, 0.07, 0.1, 1, "test");
-    Trajectory traj(gait_);
 
-    // commands
-    commandValue_ = 1;
-    commandDirection_ = 0;
+    Gait gait_(0.15, 0.07, 0.2, 0.7, "trot");
+    Trajectory traj(gait_, "bezier");
+
     int phaseSwitch = 0; 
 
     // Start Time
@@ -96,32 +95,26 @@ int Manager::begin(){
         if(microseconds  * 1e-6 >= gait_.tm){
             start = std::chrono::high_resolution_clock::now();
             phaseSwitch = !phaseSwitch;
-            ROS_INFO_STREAM(phaseSwitch);
-        }
-        
-        // Get Swing & Stance Trajectory Coordinates for time = seconds
-        auto stanceCoordinate = traj.stancePhaseTrajectory(seconds);
-        auto supportCoordinate = traj.supportPhaseTrajectory(seconds);
-
-        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirection
-        double x1, y1, z1;
-        double x2, y2, z2;
-
-        if(phaseSwitch){
-            x1 = -stanceCoordinate.y + 0.30;
-            y1 = 0;
-            z1 = -stanceCoordinate.x;
-            x2 = -supportCoordinate.y + 0.30;
-            y2 = 0;
-            z2 = -supportCoordinate.x;
         }
         else{
-            x1 = -supportCoordinate.y + 0.30;
-            y1 = 0;
-            z1 = -supportCoordinate.x;
-            x2 = -stanceCoordinate.y + 0.30;
-            y2 = 0;
-            z2 = -stanceCoordinate.x;
+        
+        // Get Swing & Stance Trajectory Coordinates for time = seconds
+        Eigen::Vector3d pStance, pSupport;
+        pStance = traj.stancePhaseTrajectory(seconds);
+        pSupport = traj.supportPhaseTrajectory(seconds);
+
+        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirection
+        pStance = fk_.trajectoryToLegH(pStance);
+        pSupport = fk_.trajectoryToLegH(pSupport);
+
+        Point p1, p2;
+        if(phaseSwitch){
+            p1 = {pStance(0), pStance(1), pStance(2)};
+            p2 = {pSupport(0), pSupport(1), pSupport(2)};
+        }
+        else{
+            p1 = {pSupport(0), pSupport(1), pSupport(2)};
+            p2 = {pStance(0), pStance(1), pStance(2)};
         }
 
         // Perform Inverse Kinematics & Obtain Joint Angles
@@ -129,13 +122,16 @@ int Manager::begin(){
         // auto leg2 = anglesToPosition(InverseKinematics::computeJointAngles(x2, y2, z2, 2), 2);
         // auto leg3 = anglesToPosition(InverseKinematics::computeJointAngles(x1, y1, z1, 3), 3);
         // auto leg4 = anglesToPosition(InverseKinematics::computeJointAngles(x2, y2, z2, 4), 4);
-        // auto jerk = jerkMinimizedTrajectory(0, 0, 0, 0, -0.1, 0, 2, seconds);
-        // InverseKinematics::computeJointAngles(jerk.y+0.2, 0, 0, 1)
 
-        statePublisher(InverseKinematics::computeJointAngles(x1, y1, z1, 1),
-                       InverseKinematics::computeJointAngles(x2, y2, z2, 2),
-                       InverseKinematics::computeJointAngles(x1, y1, z1, 3),
-                       InverseKinematics::computeJointAngles(x2, y2, z2, 4));
+        // statePublisher(InverseKinematics::computeJointAngles(j1(0), j1(1), j1(2), 1),
+        //                InverseKinematics::computeJointAngles(j2(0), j2(1), j2(2), 2),
+        //                InverseKinematics::computeJointAngles(j3(0), j3(1), j3(2), 3),
+        //                InverseKinematics::computeJointAngles(j4(0), j4(1), j4(2), 4));
+
+        statePublisher(InverseKinematics::computeJointAngles(p1.x, p2.y, p1.z, 1),
+                       InverseKinematics::computeJointAngles(p2.x, p2.y, p2.z, 2),
+                       InverseKinematics::computeJointAngles(p1.x, p1.y, p1.z, 3),
+                       InverseKinematics::computeJointAngles(p2.x, p2.y, p2.z, 4));
 
         // Send Joint Positions to respective odrive axis
         // for(int name = 0; name<name.size(); name++){
@@ -160,14 +156,16 @@ int Manager::begin(){
         // master.set_input_pos(master.axis("KF2"), leg2[2]);
         // master.set_input_pos(master.axis("KF3"), leg3[2]);
         // master.set_input_pos(master.axis("KF4"), leg4[2]);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         ros::spinOnce();
+    }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        
     }
     managerStatus = false;
-    sensorData.join();
-    driver.reset();
+    // sensorData.join();
+    // driver.reset();
 }
 
 std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
@@ -181,6 +179,26 @@ std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
             (position[1] - Claw::encoderOffset[n-1][1]) / Claw::flexionCPRAngleRelation, 
             (position[2] - Claw::encoderOffset[n-1][2]) / Claw::flexionCPRAngleRelation};
 }
+
+void Manager::move(){
+
+}
+
+void Manager::poseManipulation(Pose worldPose, double reduceLegHeightBy){
+    Eigen::Vector3d foot1WorldPose = {Claw::bodyTF[0][0], Claw::bodyTF[0][1], Claw::bodyTF[0][2] - Claw::idleLegHeight - reduceLegHeightBy};
+    Eigen::Vector3d foot2WorldPose = {Claw::bodyTF[1][0], Claw::bodyTF[1][1], Claw::bodyTF[1][2] - Claw::idleLegHeight - reduceLegHeightBy};
+    Eigen::Vector3d foot3WorldPose = {Claw::bodyTF[2][0], Claw::bodyTF[2][1], Claw::bodyTF[2][2] - Claw::idleLegHeight - reduceLegHeightBy};
+    Eigen::Vector3d foot4WorldPose = {Claw::bodyTF[3][0], Claw::bodyTF[3][1], Claw::bodyTF[3][2] - Claw::idleLegHeight - reduceLegHeightBy};
+    Eigen::Vector3d j1 = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot1WorldPose, 1);
+    Eigen::Vector3d j2 = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot2WorldPose, 2);
+    Eigen::Vector3d j3 = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot3WorldPose, 3);
+    Eigen::Vector3d j4 = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot4WorldPose, 4);
+}
+
+// void Manager::commandOdrives(){
+
+// }
+
 
 void Manager::statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4){
     sensor_msgs::JointState state;
@@ -200,5 +218,5 @@ void Manager::statePublisher(std::vector<double> l1, std::vector<double> l2, std
     state.position[9] = l4[0];
     state.position[10] = l4[1];
     state.position[11] = l4[2];
-    jointStatePublisher.publish(state);
+    jointStatePublisher_.publish(state);
 }

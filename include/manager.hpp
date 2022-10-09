@@ -32,18 +32,24 @@ class Manager {
 
         ~Manager();
 
+        int init();
+
         int begin();
 
         std::vector<int> anglesToPosition(std::vector<double> angle, int n);
 
         std::vector<double> positionToAngle(std::vector<int> position, int n);
+        
+        void move();
+
+        void poseManipulation(Pose worldPose, double reduceLegHeightBy = 0);
 
         void statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4);
 
     private:
         bool managerStatus = true;
-        double commandValue_ = 0;
-        double commandDirection_ = 0;
+        double commandValue_ = 1;
+        double commandDirection_ = 1;
         double batteryVoltage_ = 0;
         const std::string canDevice_ = "can0";
         std::string state_;
@@ -55,7 +61,8 @@ class Manager {
                                               "HA4", "HF4", "KF4"};
         std::vector<std::vector<int>> encoderShadowCount_;
 
-        ros::Publisher jointStatePublisher;
+        ros::Publisher jointStatePublisher_;
+        ForwardKinematics fk_;
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_
