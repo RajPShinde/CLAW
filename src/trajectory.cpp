@@ -26,7 +26,7 @@ Point Trajectory::jerkMinimizedTrajectory(double x0, double y0, double z0, doubl
     return {pX.position(t), pY.position(t), pZ.position(t)};
 }
 
-Point Trajectory::stancePhaseTrajectory(double t) {
+Eigen::Vector3d Trajectory::stancePhaseTrajectory(double t) {
     double x, y;
     if(legTrajectoryType_ == "compoundCycloid"){
         double c2, c3;
@@ -55,11 +55,12 @@ Point Trajectory::stancePhaseTrajectory(double t) {
                 y += coeff * std::pow(t, i) * std::pow((1 - t), (n - i)) * controlPoints_[i].y;
             }
     }
-
-    return {x, y, 0};
+    Eigen::Vector3d p;
+    p << x, y, 0;
+    return p;
 }
 
-Point Trajectory::supportPhaseTrajectory(double t) {
+Eigen::Vector3d Trajectory::supportPhaseTrajectory(double t) {
     double x, y;
     if(legTrajectoryType_ == "compoundCycloid"){
         t = gait_.tm- t;
@@ -74,8 +75,9 @@ Point Trajectory::supportPhaseTrajectory(double t) {
         x = xd*t - (gait_.stride)/2;
         y = 0;
     }
-
-    return {x, y, 0};
+    Eigen::Vector3d p;
+    p << x, y, 0;
+    return p;
 }
 
 long int Trajectory::factorial(int n){

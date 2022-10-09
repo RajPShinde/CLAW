@@ -34,7 +34,7 @@ class Trajectory {
          * @param t time
          * @return Point
          */
-        Point stancePhaseTrajectory(double t);
+        Eigen::Vector3d stancePhaseTrajectory(double t);
 
         /**
          * @brief Generated leg's support phase trajectory based on constant velocity model 
@@ -42,7 +42,7 @@ class Trajectory {
          * @param t time
          * @return Point
          */
-        Point supportPhaseTrajectory(double t);
+        Eigen::Vector3d supportPhaseTrajectory(double t);
 
         long int factorial(int n);
 
