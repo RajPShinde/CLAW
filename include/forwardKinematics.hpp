@@ -43,9 +43,8 @@ class ForwardKinematics {
         Eigen::Matrix4d legToFootH(std::vector<double> JointAngles, int n);
 
         Eigen::Vector3d footInLegFrame(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, Eigen::Vector3d p, int n);
-        
-    private:
-        Claw claw_;
+
+        Eigen::Vector3d trajectoryToLegH(Eigen::Vector3d p);
 };
 
 #endif  //  INCLUDE_FORWARDKINEMATICS_HPP_

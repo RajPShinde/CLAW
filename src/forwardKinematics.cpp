@@ -68,3 +68,8 @@ Eigen::Vector3d ForwardKinematics::footInLegFrame(double xTrans, double yTrans, 
     Eigen::Vector4d point(p(0), p(1), p(2), 1);
     return (inverseH(worldToLegH(xTrans, yTrans, zTrans, xRot, yRot, zRot, n)) * point).block<3,1>(0,0);
 }
+
+Eigen::Vector3d ForwardKinematics::trajectoryToLegH(Eigen::Vector3d p){
+    Eigen::Vector4d point(p(0), p(1), p(2), 1);
+    return (translationH(Claw::idleLegHeight, 0, 0) * rotationH(-M_PI/2, 0, M_PI/2) * point).block<3,1>(0,0);
+}
