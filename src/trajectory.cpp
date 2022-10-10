@@ -26,8 +26,10 @@ Point Trajectory::jerkMinimizedTrajectory(double x0, double y0, double z0, doubl
     return {pX.position(t), pY.position(t), pZ.position(t)};
 }
 
-Eigen::Vector3d Trajectory::stancePhaseTrajectory(double t) {
+Eigen::Vector3d Trajectory::swingPhaseTrajectory(double t, int cycle) {
+    Eigen::Vector3d p;
     double x, y;
+
     if(legTrajectoryType_ == "compoundCycloid"){
         double c2, c3;
         c2 = -gait_.stride/2 - (((-1*gait_.stride*gait_.te*std::sin(M_PI*gait_.te/gait_.te))/(2*gait_.tm*M_PI)) - ((gait_.stride*gait_.te)/(2*gait_.tm)));
@@ -44,38 +46,61 @@ Eigen::Vector3d Trajectory::stancePhaseTrajectory(double t) {
         else if(t>=gait_.tm/2 && t<gait_.tm)
             y = 2*gait_.height * (1 - (t/gait_.tm) + (std::sin(4*M_PI*t/gait_.tm)/(4*M_PI)));
     }
-
     else if(legTrajectoryType_ == "bezier"){
-        t = (1/gait_.tm)*t;
+        double offset = 0;
+
+        if(cycle == 1){
+            scaleControlPointsX(gait_.stride/2);
+            offset = gait_.stride/4;
+        }
+        else if(cycle == -1){
+            scaleControlPointsX(gait_.stride/2);
+            offset = -gait_.stride/4;
+        }
+
+        t = (1/gait_.tSwing)*t;
         int n = controlPoints_.size() - 1;
         for(int i = 0; i < controlPoints_.size(); i++)
             {
                 float coeff = factorial(n) / (factorial(i) * factorial(n - i));
-                x += coeff * std::pow(t, i) * std::pow((1 - t), (n - i)) * controlPoints_[i].x;
+                x += coeff * std::pow(t, i) * std::pow((1 - t), (n - i)) * (controlPoints_[i].x + offset) * (gait_.stride == 0 ? 0 : 1);
                 y += coeff * std::pow(t, i) * std::pow((1 - t), (n - i)) * controlPoints_[i].y;
             }
     }
-    Eigen::Vector3d p;
+
     p << x, y, 0;
     return p;
 }
 
-Eigen::Vector3d Trajectory::supportPhaseTrajectory(double t) {
+Eigen::Vector3d Trajectory::stancePhaseTrajectory(double t, int cycle) {
+    Eigen::Vector3d p;
     double x, y;
+
     if(legTrajectoryType_ == "compoundCycloid"){
-        t = gait_.tm- t;
+        t = gait_.tm - t;
         double c2 = ((-1*gait_.stride*gait_.te*std::sin(M_PI*gait_.te/gait_.te))/(2*gait_.tm*M_PI)) + ((gait_.stride*gait_.te)/(2*gait_.tm));
         double xd =(gait_.stride -  2*c2) / gait_.tm;
         x = xd*t - (gait_.stride-2*c2)/2;
         y = 0;
     }
     else if(legTrajectoryType_ == "bezier"){
-        t = gait_.tm- t;
-        double xd =(gait_.stride) / gait_.tm;
-        x = xd*t - (gait_.stride)/2;
+        double stride = gait_.stride;
+        double offset = 0;
+        if(cycle == 1){
+            stride = gait_.stride/2;
+            offset = gait_.stride/4;
+        }
+        else if(cycle == -1){
+            stride = gait_.stride/2;
+            offset = -gait_.stride/4;            
+        }
+
+        t = gait_.tStance- t;
+        double xd =stride / gait_.tStance;
+        x = xd*t - (stride/2) - offset;
         y = 0;
     }
-    Eigen::Vector3d p;
+
     p << x, y, 0;
     return p;
 }
@@ -84,6 +109,15 @@ long int Trajectory::factorial(int n){
     return std::tgamma(n+1);
 }
 
-void Trajectory::setBezierControlPoints(std::vector<Point> points){
-    
+void Trajectory::scaleControlPointsX(double newStride){
+    double ratio = newStride/gait_.stride;
+
+    for(int i =0; i<controlPoints_.size(); i++){
+        if(i == 0)
+            controlPoints_[i].x = -newStride/2;
+        else if(i == 11)
+            controlPoints_[i].x = newStride/2;
+        else
+            controlPoints_[i].x = controlPoints_[i].x * ratio;
+    }
 }

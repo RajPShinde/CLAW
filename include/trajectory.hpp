@@ -3,7 +3,6 @@
 
 #include <math.h>
 #include <polynomial.hpp>
-#include <gait.hpp>
 #include <data.hpp>
 #include <ros/ros.h>
 
@@ -34,7 +33,7 @@ class Trajectory {
          * @param t time
          * @return Point
          */
-        Eigen::Vector3d stancePhaseTrajectory(double t);
+        Eigen::Vector3d swingPhaseTrajectory(double t, int cycle);
 
         /**
          * @brief Generated leg's support phase trajectory based on constant velocity model 
@@ -42,11 +41,11 @@ class Trajectory {
          * @param t time
          * @return Point
          */
-        Eigen::Vector3d supportPhaseTrajectory(double t);
+        Eigen::Vector3d stancePhaseTrajectory(double t, int cycle);
 
         long int factorial(int n);
 
-        void setBezierControlPoints(std::vector<Point> points);
+        void scaleControlPointsX(double newStride);
 
     private:
         Gait gait_;
