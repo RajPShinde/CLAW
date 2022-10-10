@@ -16,9 +16,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <gait.hpp>
 #include <claw.hpp>
-#include <interface.hpp>
 #include <inverseKinematics.hpp>
 #include <forwardKinematics.hpp>
 #include <trajectory.hpp>
@@ -42,7 +40,9 @@ class Manager {
         
         void move();
 
-        void poseManipulation(Pose worldPose, double reduceLegHeightBy = 0);
+        void poseManipulation();
+
+        void commandOdrives();
 
         void statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4);
 
@@ -52,7 +52,7 @@ class Manager {
         double commandDirection_ = 1;
         double batteryVoltage_ = 0;
         const std::string canDevice_ = "can0";
-        std::string state_;
+        std::string state_ = "WALK";
         std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
         std::vector<std::string> axisNames = {"HA1", "HF1", "KF1", 

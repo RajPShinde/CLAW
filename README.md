@@ -31,8 +31,8 @@ sudo ./install.sh
 ## TO-DO's
 ### CAD
 - [x] Parts
-- [ ] Assembly
-- [ ] URDF
+- [x] Assembly
+- [x] URDF
 ### Hardware Interface
 - [x] PCB Design
 - [x] SPI Test
@@ -42,13 +42,14 @@ sudo ./install.sh
 - [x] Inverse Kinematics
 - [x] Forward Kinematics
 - [ ] Velocity Kinematics
-- [ ] Force/Torque Rel
+### Controls
+- [ ] Hybrid Control (Impedance + Position)
 ### Trajectory Planning
 - [x] Compound Cycloid
+- [x] Bezier Curve
 - [x] Jerk Minimized
 ### Visualization
-- [ ] URDF
-- [ ] Joint State Publishers
+- [x] Joint State Publishers
 ### Manager
 - [ ] State Machine
 

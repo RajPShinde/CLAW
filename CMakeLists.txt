@@ -30,7 +30,6 @@ endif()
 include_directories(include lib/odrive_can/include/ ${catkin_INCLUDE_DIRS})
 
 add_executable(clawManager src/main.cpp src/manager.cpp src/forwardKinematics.cpp src/inverseKinematics.cpp 
-			   src/velocityKinematics.cpp src/trajectory.cpp src/gait.cpp src/polynomial.cpp lib/odrive_can/src/can_simple.cpp
-			   src/interface.cpp)
+			   src/velocityKinematics.cpp src/trajectory.cpp src/polynomial.cpp lib/odrive_can/src/can_simple.cpp)
 target_link_libraries(clawManager ${catkin_LIBRARIES})
 add_dependencies(clawManager ${catkin_EXPORTED_TARGETS})
