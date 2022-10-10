@@ -37,4 +37,22 @@ struct OdrivePosition{
     double gammaPosition;
 };
 
+struct Gait{
+    double stride;
+    double height;
+
+    double tSwing;
+    double tStance;
+    double tDelay;
+    
+    double te = 0.1;
+    double tm = 0.15;
+    double tn = 0.13;
+    
+    std::string type;
+
+    Gait(){};
+    Gait(double a, double b, double c, double d, double e, std::string f): stride(a), height(b), tSwing(c), tStance(d), tDelay(e), type(f) {};
+};
+
 #endif  //  INCLUDE_DATA_HPP_
