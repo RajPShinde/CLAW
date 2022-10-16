@@ -129,17 +129,18 @@ Eigen::Vector3d Trajectory::stancePhaseTrajectory(double t, int cycle) {
     else if(legTrajectoryType_ == "bezier"){
         double stride = gait_.stride;
         double offset = 0;
+
         if(cycle == 1){
             stride = gait_.stride/2;
             offset = gait_.stride/4;
         }
         else if(cycle == -1){
             stride = gait_.stride/2;
-            offset = -gait_.stride/4;            
+            offset = -gait_.stride/4;
         }
 
         t = gait_.tStance- t;
-        double xd =stride / gait_.tStance;
+        double xd = stride / gait_.tStance;
         x = xd*t - (stride/2) - offset;
         y = 0;
     }
