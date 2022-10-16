@@ -67,108 +67,68 @@ int Manager::begin(){
         return -1;
     }
 
-    // // Create Interface to SocketCAN 
-    // can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
-    // if (!driver->init(Claw::canDevice, 0, can::NoSettings::create()))
-    // {
-    //     ROS_ERROR_STREAM("Failed to initialize can device");
-    //     return -1;
-    // }
-    // can::StateListenerConstSharedPtr state_listener = driver->createStateListener(
-    //     [&driver](const can::State& s) {
-    //         std::string err;
-    //         driver->translateError(s.internal_error, err);
-    //         ROS_ERROR_STREAM("CAN Device error");
-    //                     fprintf(stderr, "CAN Device error: %s, asio: %s.\n", 
-    //             err.c_str(), s.error_code.message().c_str());
-    //     }
-    // );
+    allAxis= {master.axis("HA1"), master.axis("HA2"), master.axis("HA3"), master.axis("HA4"),
+              master.axis("HF1"), master.axis("HF2"), master.axis("HF3"), master.axis("HF4"),
+              master.axis("KF1"), master.axis("KF2"), master.axis("KF3"), master.axis("KF4")};
 
-    // // Pass the SocketCAN handle to master
-    // master.init(driver);
-    // std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    // Create Interface to SocketCAN 
+    can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
+    if (!driver->init(Claw::canDevice, 0, can::NoSettings::create()))
+    {
+        ROS_ERROR_STREAM("Failed to initialize can device");
+        return -1;
+    }
+    can::StateListenerConstSharedPtr state_listener = driver->createStateListener(
+        [&driver](const can::State& s) {
+            std::string err;
+            driver->translateError(s.internal_error, err);
+            ROS_ERROR_STREAM("CAN Device error");
+                        fprintf(stderr, "CAN Device error: %s, asio: %s.\n", 
+                err.c_str(), s.error_code.message().c_str());
+        }
+    );
 
-    // // Background Thread
-    // std::thread sensorData( [&master, this]() {
-    //     while(master.is_ready() && managerStatus) {
-    //         // Update Joint Encoder Data
-    //         // for(int name = 0; name < axisNames.size(); name++){
-    //         //     master.get_encoder_count(master.axis((axisNames[name]).c_str()));
-    //         // }
+    // Pass the SocketCAN handle to master
+    master.init(driver);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    //         encoderShadowCount_ = {{master.axis("HA1").encoder_shadow_count, master.axis("HF1").encoder_shadow_count, master.axis("KF1").encoder_shadow_count},
-    //                                {master.axis("HA2").encoder_shadow_count, master.axis("HF2").encoder_shadow_count, master.axis("KF2").encoder_shadow_count},
-    //                                {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
-    //                                {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
-    
-    //         master.get_encoder_count(master.axis("HA3"));
-    //         master.get_encoder_count(master.axis("HF3"));
-    //         master.get_encoder_count(master.axis("KF3"));
+    // Background Thread
+    std::thread sensorData( [&master, this]() {
+        while(master.is_ready() && managerStatus) {
+            // Update Joint Encoder Data
+            for(auto a:allAxis){
+                master.get_encoder_count(a);
+            }
 
-    //         // ROS_ERROR_STREAM(encoderShadowCount_[2][1]);
+            encoderShadowCount_ = {{master.axis("HA1").encoder_shadow_count, master.axis("HF1").encoder_shadow_count, master.axis("KF1").encoder_shadow_count},
+                                   {master.axis("HA2").encoder_shadow_count, master.axis("HF2").encoder_shadow_count, master.axis("KF2").encoder_shadow_count},
+                                   {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
+                                   {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
             
-    //         // Check and Update Battery Voltage
-    //         master.get_vbus_voltage(master.axis("KF1"));
-    //         batteryVoltage_ = master.axis("KF1").vbus_voltage;
-    //         if(batteryVoltage_ < Claw::minBatteryVoltage){
-    //             ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
-    //             return -1;
-    //         }
-    //         std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    //     } 
-    // } );
+            // Check and Update Battery Voltage
+            master.get_vbus_voltage(master.axis("KF1"));
+            batteryVoltage_ = master.axis("KF1").vbus_voltage;
+            if(batteryVoltage_ < Claw::minBatteryVoltage){
+                ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
+                return -1;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        } 
+    } );
 
     // Initialize Legs
 
-    // Gait gait_(0.15, 0.07, 0.2, 0.7, "trot");
-    // Trajectory traj(gait_, "bezier");
-
-    // Start Time
-    auto start = std::chrono::high_resolution_clock::now();
     // Loop
     while(ros::ok()){
-
         move();
         poseManipulation();
-    
-        // Perform Inverse Kinematics & Obtain Joint Angles
-        // auto leg1 = anglesToPosition(InverseKinematics::computeJointAngles(x1, y1, z1, 1) ,1);
-        // auto leg2 = anglesToPosition(InverseKinematics::computeJointAngles(x2, y2, z2, 2), 2);
-        // auto leg3 = anglesToPosition(InverseKinematics::computeJointAngles(x1, y1, z1, 3), 3);
-        // auto leg4 = anglesToPosition(InverseKinematics::computeJointAngles(x2, y2, z2, 4), 4);
-
-        // Send Joint Positions to respective odrive axis
-        // for(int name = 0; name<name.size(); name++){
-        //     for(int legNo = 1; legNo<=4; legNo++){
-        //         master.set_input_pos(master.axis(name+std::to_string(legNo)), leg1[0]);
-        //     }
-        // }
-        // Hip Abduction
-        // master.set_input_pos(master.axis("HA1"), leg1[0]);
-        // master.set_input_pos(master.axis("HA2"), leg2[0]);
-        // master.set_input_pos(master.axis("HA3"), leg3[0]);
-        // master.set_input_pos(master.axis("HA4"), leg4[0]);
-
-        // // Hip Flexion
-        // master.set_input_pos(master.axis("HF1"), leg1[1]);
-        // master.set_input_pos(master.axis("HF2"), leg2[1]);
-        // master.set_input_pos(master.axis("HF3"), leg3[1]);
-        // master.set_input_pos(master.axis("HF4"), leg4[1]);
-
-        // // Knee Flexion
-        // master.set_input_pos(master.axis("KF1"), leg1[2]);
-        // master.set_input_pos(master.axis("KF2"), leg2[2]);
-        // master.set_input_pos(master.axis("KF3"), leg3[2]);
-        // master.set_input_pos(master.axis("KF4"), leg4[2]);
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
         ros::spinOnce();
-
     }
+
     managerStatus = false;
-    // sensorData.join();
-    // driver.reset();
+    
+    sensorData.join();
+    driver.reset();
 }
 
 std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
@@ -185,6 +145,7 @@ std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
 
 void Manager::move(){
 
+    // TEST
     statePublisher(InverseKinematics::computeJointAngles(0.35, 0, 0, 1),
                 InverseKinematics::computeJointAngles(0.35, 0, 0, 2),
                 InverseKinematics::computeJointAngles(0.35, 0, 0, 3),
@@ -192,72 +153,127 @@ void Manager::move(){
     ros::spinOnce();
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     
-    int phaseSwitch = 1; 
-    int prev = 1;
-    int cycle = 1;
+    // Pair1 (Leg 1 & 3), Pair2 (Leg 2 & 4)
+    int phaseReference = 1;
+    int phasePair1 = 1, prevPhasePair1 = 1; 
+    int phasePair2 = 0, prevPhasePair2 = 0; 
+    int cyclePair1 = 1, cyclePair2 = 1;
+
     bool inMotion = false;
+
     auto startWalk = std::chrono::high_resolution_clock::now();
-    int f  =0;
     
+    // TEST
+    int f = 0;
+    bool allow1 = true;
+    bool allow2 = false;
+    
+    Gait gait(0.12, 0.07, 0.4, 1, "trot");
     while(state_ == "WALK" || inMotion){ 
         inMotion = true;       
 
-        Gait gait(0.12, 0.07, 1, 1, 0, "trot");
+        // When trotting in place delay should be tSwing + (tStance + tSwing)/2
         Trajectory traj(gait, "bezier");
 
         auto elapsed = std::chrono::high_resolution_clock::now() - startWalk;
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
-        double seconds = microseconds * 1e-6;
+        double timeReference = microseconds * 1e-6;
+        double time1 = offsetTime(timeReference, phaseReference, phasePair1, 0, gait);
+        double time2 = offsetTime(timeReference, phaseReference, phasePair2, 0.7, gait);
+
+
+        if(!allow2 && !phasePair2 && time2 >= 0){
+            ROS_ERROR_STREAM(time2);
+            allow2 = true;
+        }
 
         // Reset time after half gait cycle is complete
-        if(microseconds  * 1e-6 >= gait.tSwing){
+        if(timeReference >= (phaseReference ? gait.tSwing : gait.tStance)){
             startWalk = std::chrono::high_resolution_clock::now();
-            phaseSwitch = !phaseSwitch;
+            phaseReference = !phaseReference;
         }
 
-        // Get Swing & Stance Trajectory Coordinates for time = seconds
-        Eigen::Vector3d pSwing, pStance;
-        pSwing = traj.swingPhaseTrajectory(seconds, cycle);
-        pStance = traj.stancePhaseTrajectory(seconds, cycle);
+        if(phasePair1!=prevPhasePair1){
+            prevPhasePair1 = phasePair1;
+            f++;
+            if(cyclePair1 == -1)
+                allow1 = false;
+            if(cyclePair1 == 1)
+                cyclePair1 = 0;
+            if(state_ != "WALK"){
+                cyclePair1 = -1;
+                gait.tSwing = 0.7;
+            }
+        }
 
-        // Transform Trajectory Coordinates to Hip Frame and Rotate based on commandDirection
-        pSwing = fk_.trajectoryToLegH(pSwing);
-        pStance = fk_.trajectoryToLegH(pStance);
+        if(phasePair2!=prevPhasePair2){
+            prevPhasePair2 = phasePair2;
+            f++;
+            if(cyclePair2 == -1)
+                allow2 = false;
+            if(cyclePair2 == 1)
+                cyclePair2 = 0;
+            if(state_ != "WALK")
+                cyclePair2 = -1;
+        }
 
-        Point p1, p2;
-        if(phaseSwitch){
-            p1 = {pSwing(0), pSwing(1), pSwing(2)};
-            p2 = {pStance(0), pStance(1), pStance(2)};
+        Point pair1, pair2;
+        
+        if(allow1){
+            if(phasePair1){
+                // Get Swing Trajectory Coordinates for time = seconds, and transform it to legt frame
+                Eigen::Vector3d pSwing;
+                pSwing = traj.swingPhaseTrajectory(time1, cyclePair1);
+                pSwing = fk_.trajectoryToLegH(pSwing);
+                pair1 = {pSwing(0), pSwing(1), pSwing(2)};
+            }
+            else{
+                // Get Stance Trajectory Coordinates for time = seconds, and transform it to legt frame
+                Eigen::Vector3d  pStance;
+                pStance = traj.stancePhaseTrajectory(time1, cyclePair1);
+                pStance = fk_.trajectoryToLegH(pStance);
+                pair1 = {pStance(0), pStance(1), pStance(2)};
+            }
+        }
 
+        if(allow2){
+            if(phasePair2){
+                // Get Swing Trajectory Coordinates for time = seconds, and transform it to legt frame
+                Eigen::Vector3d pSwing;
+                pSwing = traj.swingPhaseTrajectory(time2, cyclePair2);
+                pSwing = fk_.trajectoryToLegH(pSwing);
+                pair2 = {pSwing(0), pSwing(1), pSwing(2)};
+            }
+            else{
+                // Get Stance Trajectory Coordinates for time = seconds, and transform it to legt frame
+                Eigen::Vector3d  pStance;
+                pStance = traj.stancePhaseTrajectory(time2, cyclePair2);
+                pStance = fk_.trajectoryToLegH(pStance);
+                pair2 = {pStance(0), pStance(1), pStance(2)};
+            }
         }
         else{
-            p1 = {pStance(0), pStance(1), pStance(2)};
-            p2 = {pSwing(0), pSwing(1), pSwing(2)};
-
+            pair2 = {0.35, 0, 0};
         }
 
-        statePublisher(InverseKinematics::computeJointAngles(p1.x, p2.y, p1.z, 1),
-                       InverseKinematics::computeJointAngles(p2.x, p2.y, p2.z, 2),
-                       InverseKinematics::computeJointAngles(p1.x, p1.y, p1.z, 3),
-                       InverseKinematics::computeJointAngles(p2.x, p2.y, p2.z, 4));
+        ROS_ERROR_STREAM(pair2.z);
+
+        // TEST
+        if(f==10)
+            state_ = "NONE";
+
+        statePublisher(InverseKinematics::computeJointAngles(pair1.x, pair1.y, pair1.z, 1),
+                       InverseKinematics::computeJointAngles(pair2.x, pair2.y, pair2.z, 2),
+                       InverseKinematics::computeJointAngles(pair1.x, pair1.y, pair1.z, 3),
+                       InverseKinematics::computeJointAngles(pair2.x, pair2.y, pair2.z, 4));
 
 
         ros::spinOnce();
-
-        if(phaseSwitch!=prev){
-            f++;
-            prev = phaseSwitch;
-            if(cycle == -1)
-                break;
-            if(cycle == 1)
-                cycle = 0;
-            if(state_ != "WALK")
-                cycle = -1;
-        }
-        if(f==1)
-            state_ = "NONE";
+        if(!allow1 && !allow2)
+            break;
     }
 
+    // TEST
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     state_ = "WALK";
 }
@@ -285,8 +301,53 @@ void Manager::poseManipulation(){
     }
 }
 
-void Manager::commandOdrives(){
+double Manager::offsetTime(double timeReference, int phaseReference, int &phasePair, double delay, Gait gait){
+    double tnew = timeReference - delay;
+    if(tnew>=0){
+        phasePair = phaseReference;
+        return tnew;
+    }
+    if(tnew < 0 && phaseReference){
+        phasePair = 0;
+        return gait.tStance + tnew;
+    }
+    if(tnew < 0 && !phaseReference){
+        if(gait.tSwing + tnew >=0){
+            phasePair = 1;
+            return gait.tSwing + tnew;
+        }
+        phasePair = 0;
+        return gait.tSwing + gait.tStance + tnew;
+    }
+    return tnew;
+}
 
+void Manager::initializeOdrives(odrive_can_ros::CANSimple &master){
+
+    // Clear All Axis
+    for(auto a:allAxis){
+        master.clear_errors(a);
+    }
+
+    // Start Position Control on All Axis
+    for(auto a:allAxis){
+        master.set_axis_requested_state(a, odrive_can_ros::AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
+    }
+}
+
+void Manager::commandOdrives(odrive_can_ros::CANSimple &master){
+
+    // // Perform Inverse Kinematics & Obtain Joint Angles
+    std::vector<int> position;
+    // auto leg1 = anglesToPosition(, 1);
+    // auto leg2 = anglesToPosition(, 2);
+    // auto leg3 = anglesToPosition(, 3);
+    // auto leg4 = anglesToPosition(, 4);
+
+    // Send Position Commands
+    for(int i = 0; i<allAxis.size(); i++){
+        master.set_input_pos(allAxis[i], position[i]);
+    }
 }
 
 

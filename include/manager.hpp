@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <inverseKinematics.hpp>
 #include <forwardKinematics.hpp>
 #include <trajectory.hpp>
+#include <odrive_can_ros/ODriveEnums.h>
 #include <odrive_can_ros/can_simple.hpp>
 #include <socketcan_interface/socketcan.h>
 #include <sensor_msgs/JointState.h>
@@ -75,7 +76,11 @@ class Manager {
 
         void poseManipulation();
 
-        void commandOdrives();
+        double offsetTime(double timeReference, int phaseReference, int &phasePair, double delay, Gait gait);
+
+        void initializeOdrives(odrive_can_ros::CANSimple &master);
+
+        void commandOdrives(odrive_can_ros::CANSimple &master);
 
         void statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4);
 
@@ -88,11 +93,8 @@ class Manager {
         std::string state_ = "WALK";
         std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
-        std::vector<std::string> axisNames = {"HA1", "HF1", "KF1", 
-                                              "HA2", "HF2", "KF2", 
-                                              "HA3", "HF3", "KF3", 
-                                              "HA4", "HF4", "KF4"};
         std::vector<std::vector<int>> encoderShadowCount_;
+        std::vector<odrive_can_ros::ODriveAxis> allAxis;
 
         ros::Publisher jointStatePublisher_;
         ForwardKinematics fk_;
