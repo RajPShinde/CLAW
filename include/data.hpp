@@ -95,7 +95,7 @@ struct Gait{
     std::string type;
 
     Gait(){};
-    Gait(double a, double b, double c, double d, double e, std::string f): stride(a), height(b), tSwing(c), tStance(d), tDelay(e), type(f) {};
+    Gait(double a, double b, double c, double d, std::string e): stride(a), height(b), tSwing(c), tStance(d), tDelay(tStance - tSwing), type(e) {};
 };
 
 #endif  //  INCLUDE_DATA_HPP_
