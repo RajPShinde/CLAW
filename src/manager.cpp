@@ -92,9 +92,13 @@ int Manager::begin(){
     master.init(driver);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    initializeOdrives(master);
-
+    // initializeOdrives(master);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    // for(int i = 1; i<50; i++)
+    double cmd = Claw::encoderOffset[0][1]/2000;
+    ROS_INFO_STREAM(cmd);
+        // master.set_input_pos(allAxis[4], cmd);
 
     // Background Thread
     std::thread sensorData( [&master, this]() {
@@ -109,12 +113,11 @@ int Manager::begin(){
                                    {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
                                    {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
             
-            //  master.get_encoder_count(master.axis("HA1"));
-            ROS_INFO_STREAM(encoderShadowCount_[0][0]<<" "<<encoderShadowCount_[0][1]<<" "<<encoderShadowCount_[0][2]);
+            ROS_INFO_STREAM(encoderShadowCount_[3][0]<<" "<<encoderShadowCount_[3][1]<<" "<<encoderShadowCount_[3][2]);
 
             // Check and Update Battery Voltage
-            master.get_vbus_voltage(master.axis("KF1"));
-            batteryVoltage_ = master.axis("KF1").vbus_voltage;
+            master.get_vbus_voltage(allAxis[0]);
+            batteryVoltage_ = allAxis[0].vbus_voltage;
             if(batteryVoltage_ < Claw::minBatteryVoltage){
                 ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
                 // return -1;

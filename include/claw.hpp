@@ -82,10 +82,10 @@ class Claw {
          static constexpr double countsPerRevolution = 2000;
          static constexpr double abductionCPRAngleRelation = countsPerRevolution * reductionHA / 360;
          static constexpr double flexionCPRAngleRelation = countsPerRevolution * reductionHF / 360;
-         static constexpr int encoderOffset[4][3] = {{0, 0, 0},
-                                                     {0, 0, 0},
-                                                     {0, 0, 0},
-                                                     {0, 0, 0}};
+         static constexpr double encoderOffset[4][3] = {{0, -2971, -8008},
+                                                     {0, 2546, 8283},
+                                                     {0, 725, -1854},
+                                                     {0, -1144, 0}};
 
          static constexpr int encoderDirection[4][3] = {{1, 1, 1},
                                                         {1, 1, 1},
