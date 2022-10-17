@@ -92,11 +92,15 @@ int Manager::begin(){
     master.init(driver);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
+    initializeOdrives(master);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
     // Background Thread
     std::thread sensorData( [&master, this]() {
         while(master.is_ready() && managerStatus) {
             // Update Joint Encoder Data
-            for(auto a:allAxis){
+            for(auto &a:allAxis){
                 master.get_encoder_count(a);
             }
 
@@ -105,14 +109,17 @@ int Manager::begin(){
                                    {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
                                    {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
             
+            //  master.get_encoder_count(master.axis("HA1"));
+            ROS_INFO_STREAM(encoderShadowCount_[0][0]<<" "<<encoderShadowCount_[0][1]<<" "<<encoderShadowCount_[0][2]);
+
             // Check and Update Battery Voltage
             master.get_vbus_voltage(master.axis("KF1"));
             batteryVoltage_ = master.axis("KF1").vbus_voltage;
             if(batteryVoltage_ < Claw::minBatteryVoltage){
                 ROS_ERROR_STREAM("Battery Voltage Low: "<<batteryVoltage_);
-                return -1;
+                // return -1;
             }
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         } 
     } );
 
@@ -125,9 +132,13 @@ int Manager::begin(){
         ros::spinOnce();
     }
 
+    ros::spinOnce();
+
     managerStatus = false;
     
     sensorData.join();
+
+    idleOdrives(master);
     driver.reset();
 }
 
@@ -183,7 +194,6 @@ void Manager::move(){
 
 
         if(!allow2 && !phasePair2 && time2 >= 0){
-            ROS_ERROR_STREAM(time2);
             allow2 = true;
         }
 
@@ -256,8 +266,6 @@ void Manager::move(){
             pair2 = {0.35, 0, 0};
         }
 
-        ROS_ERROR_STREAM(pair2.z);
-
         // TEST
         if(f==10)
             state_ = "NONE";
@@ -325,14 +333,25 @@ double Manager::offsetTime(double timeReference, int phaseReference, int &phaseP
 void Manager::initializeOdrives(odrive_can_ros::CANSimple &master){
 
     // Clear All Axis
-    for(auto a:allAxis){
+    for(auto &a:allAxis){
         master.clear_errors(a);
     }
 
     // Start Position Control on All Axis
-    for(auto a:allAxis){
+    for(auto &a:allAxis){
         master.set_axis_requested_state(a, odrive_can_ros::AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
     }
+
+}
+
+
+void Manager::idleOdrives(odrive_can_ros::CANSimple &master){
+
+    // idle All Axis
+    for(auto &a:allAxis){
+        master.set_axis_requested_state(a, odrive_can_ros::AxisState::AXIS_STATE_IDLE);
+    }
+    
 }
 
 void Manager::commandOdrives(odrive_can_ros::CANSimple &master){

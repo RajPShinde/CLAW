@@ -82,6 +82,8 @@ class Manager {
 
         void commandOdrives(odrive_can_ros::CANSimple &master);
 
+        void idleOdrives(odrive_can_ros::CANSimple &master);
+
         void statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4);
 
     private:
