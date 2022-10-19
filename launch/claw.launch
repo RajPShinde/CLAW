@@ -12,5 +12,10 @@
   <!-- Rviz -->
   <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" /> -->
 
-  <node name="tf_footprint_base" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg1_link2 foot1 40" />
+  <node name="base_world" pkg="tf" type="static_transform_publisher" args="0 0 0.386 0 0 0 map base_world 40" />
+
+  <node name="foot1" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg1_link2 foot1 40" />
+  <node name="foot2" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg2_link2 foot2 40" />
+  <node name="foot3" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg3_link2 foot3 40" />
+  <node name="foot4" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg4_link2 foot4 40" />
 </launch>

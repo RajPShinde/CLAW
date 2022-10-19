@@ -57,6 +57,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <odrive_can_ros/can_simple.hpp>
 #include <socketcan_interface/socketcan.h>
 #include <sensor_msgs/JointState.h>
+#include <tf/transform_broadcaster.h>
 
 class Manager {
     public:
@@ -91,8 +92,7 @@ class Manager {
         double commandValue_ = 1;
         double commandDirection_ = 1;
         double batteryVoltage_ = 0;
-        const std::string canDevice_ = "can0";
-        std::string state_ = "WALK";
+        std::string state_ = "MOVE_BASE";
         std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
         std::vector<std::vector<int>> encoderShadowCount_;
@@ -100,6 +100,8 @@ class Manager {
 
         ros::Publisher jointStatePublisher_;
         ForwardKinematics fk_;
+
+        Pose base = {0, 0, 0};
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_
