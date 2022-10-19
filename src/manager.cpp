@@ -130,12 +130,10 @@ int Manager::begin(){
 
     // Loop
     while(ros::ok()){
-        move();
+        // move();
         poseManipulation();
         ros::spinOnce();
     }
-
-    ros::spinOnce();
 
     managerStatus = false;
     
@@ -146,9 +144,9 @@ int Manager::begin(){
 }
 
 std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
-    return {Claw::encoderOffset[n-1][0] + angle[0] * Claw::abductionCPRAngleRelation, 
-            Claw::encoderOffset[n-1][1] + angle[1] * Claw::flexionCPRAngleRelation, 
-            Claw::encoderOffset[n-1][2] + angle[2] * Claw::flexionCPRAngleRelation};
+    return {(Claw::encoderOffset[n-1][0]/Claw::countsPerRevolution) + ((angle[0]*Claw::reductionHA)/(2*M_PI)), 
+            (Claw::encoderOffset[n-1][1]/Claw::countsPerRevolution) + ((angle[1]*Claw::reductionHF)/(2*M_PI)), 
+            (Claw::encoderOffset[n-1][2]/Claw::countsPerRevolution) + ((angle[2]*Claw::reductionHF)/(2*M_PI))};
 }
 
 std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
@@ -290,24 +288,58 @@ void Manager::move(){
 }
 
 void Manager::poseManipulation(){
+    auto start = std::chrono::high_resolution_clock::now();
+    Gait gait;
+    Trajectory traj(gait, "test");
+    double s = 0;
+    double g = 0.3;
+
+    static tf::TransformBroadcaster br;
+    tf::Transform transform;
+
     while(state_ == "MOVE_BASE"){
-        Pose worldPose;
+        auto elapsed = std::chrono::high_resolution_clock::now() - start;
+        long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+        double timeReference = microseconds * 1e-6;
+
+        transform.setOrigin( tf::Vector3(base.x, base.y, base.z) );
+        tf::Quaternion q;
+        q.setRPY(base.roll, base.pitch, base.yaw);
+        transform.setRotation(q);
+        br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_world", "base_link"));
+
+        if(timeReference >= 2){
+            start = std::chrono::high_resolution_clock::now();
+            double temp = s;
+            s = g;
+            g = temp;
+        }
+
+        base.x = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        base.y = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        base.z = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        base.roll = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        base.pitch = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        base.yaw = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        
         double reduceLegHeightBy = 0;
         Eigen::Vector3d foot1World = {Claw::bodyTF[0][0], Claw::bodyTF[0][1], Claw::bodyTF[0][2] - Claw::idleLegHeight - reduceLegHeightBy};
         Eigen::Vector3d foot2World = {Claw::bodyTF[1][0], Claw::bodyTF[1][1], Claw::bodyTF[1][2] - Claw::idleLegHeight - reduceLegHeightBy};
         Eigen::Vector3d foot3World = {Claw::bodyTF[2][0], Claw::bodyTF[2][1], Claw::bodyTF[2][2] - Claw::idleLegHeight - reduceLegHeightBy};
         Eigen::Vector3d foot4World = {Claw::bodyTF[3][0], Claw::bodyTF[3][1], Claw::bodyTF[3][2] - Claw::idleLegHeight - reduceLegHeightBy};
 
-        Eigen::Vector3d foot1Leg = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot1World, 1);
-        Eigen::Vector3d foot2Leg = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot2World, 2);
-        Eigen::Vector3d foot3Leg = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot3World, 3);
-        Eigen::Vector3d foot4Leg = fk_.footInLegFrame(worldPose.x, worldPose.y, worldPose.z, worldPose.roll, worldPose.pitch, worldPose.yaw, foot4World, 4);
+        Eigen::Vector3d foot1Leg = fk_.footInLegFrame(base.x, base.y, base.z, base.roll, base.pitch, base.yaw, foot1World, 1);
+        Eigen::Vector3d foot2Leg = fk_.footInLegFrame(base.x, base.y, base.z, base.roll, base.pitch, base.yaw, foot2World, 2);
+        Eigen::Vector3d foot3Leg = fk_.footInLegFrame(base.x, base.y, base.z, base.roll, base.pitch, base.yaw, foot3World, 3);
+        Eigen::Vector3d foot4Leg = fk_.footInLegFrame(base.x, base.y, base.z, base.roll, base.pitch, base.yaw, foot4World, 4);
 
-        statePublisher(InverseKinematics::computeJointAngles(foot1Leg(0), foot1Leg(1), foot1Leg(2), 1),
-                       InverseKinematics::computeJointAngles(foot2Leg(0), foot2Leg(1), foot2Leg(2), 2),
-                       InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), foot3Leg(2), 3),
-                       InverseKinematics::computeJointAngles(foot4Leg(0), foot4Leg(1), foot4Leg(2), 4));
+        statePublisher(InverseKinematics::computeJointAngles(foot1Leg(0), foot1Leg(1), -foot1Leg(2), 1),
+                       InverseKinematics::computeJointAngles(foot2Leg(0), foot2Leg(1), -foot2Leg(2), 2),
+                       InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), -foot3Leg(2), 3),
+                       InverseKinematics::computeJointAngles(foot4Leg(0), foot4Leg(1), -foot4Leg(2), 4));
 
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
         ros::spinOnce();
     }
 }

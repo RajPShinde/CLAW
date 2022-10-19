@@ -61,12 +61,10 @@ Trajectory::Trajectory(Gait &obj, std::string s): gait_(obj), legTrajectoryType_
 Trajectory::~Trajectory(){
 }
 
-Point Trajectory::jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double T, double t){
+double Trajectory::jerkMinimizedTrajectory(double x0, double y0, double z0, double xT, double yT, double zT, double T, double t){
     Polynomial pX(x0, 0, 0, xT, 0, 0, T);
-    Polynomial pY(y0, 0, 0, yT, 0, 0, T);
-    Polynomial pZ(z0, 0, 0, zT, 0, 0, T);
 
-    return {pX.position(t), pY.position(t), pZ.position(t)};
+    return pX.position(t);
 }
 
 Eigen::Vector3d Trajectory::swingPhaseTrajectory(double t, int cycle) {
