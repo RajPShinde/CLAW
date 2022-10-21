@@ -92,13 +92,8 @@ int Manager::begin(){
     master.init(driver);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    // initializeOdrives(master);
+    initializeOdrives(master);
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    // for(int i = 1; i<50; i++)
-    double cmd = Claw::encoderOffset[0][1]/2000;
-    ROS_INFO_STREAM(cmd);
-        // master.set_input_pos(allAxis[4], cmd);
 
     // Background Thread
     std::thread sensorData( [&master, this]() {
@@ -113,7 +108,7 @@ int Manager::begin(){
                                    {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
                                    {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
             
-            ROS_INFO_STREAM(encoderShadowCount_[3][0]<<" "<<encoderShadowCount_[3][1]<<" "<<encoderShadowCount_[3][2]);
+            ROS_INFO_STREAM(encoderShadowCount_[2][0]<<" "<<encoderShadowCount_[2][1]<<" "<<encoderShadowCount_[2][2]);
 
             // Check and Update Battery Voltage
             master.get_vbus_voltage(allAxis[0]);
@@ -131,7 +126,7 @@ int Manager::begin(){
     // Loop
     while(ros::ok()){
         // move();
-        poseManipulation();
+        poseManipulation(master);
         ros::spinOnce();
     }
 
@@ -287,7 +282,7 @@ void Manager::move(){
     state_ = "WALK";
 }
 
-void Manager::poseManipulation(){
+void Manager::poseManipulation(odrive_can_ros::CANSimple &master){
     auto start = std::chrono::high_resolution_clock::now();
     Gait gait;
     Trajectory traj(gait, "test");
@@ -308,19 +303,20 @@ void Manager::poseManipulation(){
         transform.setRotation(q);
         br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_world", "base_link"));
 
-        if(timeReference >= 2){
+        if(timeReference >= 4){
             start = std::chrono::high_resolution_clock::now();
             double temp = s;
             s = g;
             g = temp;
         }
+        else{
 
-        base.x = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
-        base.y = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
-        base.z = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
-        base.roll = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
-        base.pitch = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
-        base.yaw = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 2, timeReference);
+        base.x = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 4, timeReference);
+        base.y = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 4, timeReference);
+        base.z = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 4, timeReference);
+        base.roll = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 4, timeReference);
+        base.pitch = traj.jerkMinimizedTrajectory(s, 0, 0, g, 0, 0, 4, timeReference);
+        base.yaw = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 4, timeReference);
         
         double reduceLegHeightBy = 0;
         Eigen::Vector3d foot1World = {Claw::bodyTF[0][0], Claw::bodyTF[0][1], Claw::bodyTF[0][2] - Claw::idleLegHeight - reduceLegHeightBy};
@@ -338,7 +334,16 @@ void Manager::poseManipulation(){
                        InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), -foot3Leg(2), 3),
                        InverseKinematics::computeJointAngles(foot4Leg(0), foot4Leg(1), -foot4Leg(2), 4));
 
+        auto test = InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), -foot3Leg(2), 3);
+        ROS_INFO_STREAM(test[0]<<" "<<test[1]<<" "<<test[2]<<" "<<timeReference);
 
+
+        // double cmd = Claw::encoderOffset[2][1]/2000 * Claw::encoderDirection[2][1];
+    
+        double cmd = (Claw::encoderOffset[2][1]/Claw::countsPerRevolution) - ((test[1]*Claw::reductionHF)/(2*M_PI));
+        master.set_input_pos(allAxis[6], cmd);
+
+        }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
         ros::spinOnce();
     }
