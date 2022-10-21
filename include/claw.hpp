@@ -65,14 +65,14 @@ class Claw {
          static constexpr double reductionHF = 10.8;
          static constexpr double reductionKF = 10.8;
          static constexpr double bodyTF[4][6] = {{ 0.066 + 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Left Shoulder
-                                                { 0.066 + 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Right Shoulder
-                                                {-0.066 - 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Rear Left Shoulder
-                                                {-0.066 - 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0}};  // To Rear Right Shoulder
+                                                 { 0.066 + 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Right Shoulder
+                                                 {-0.066 - 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Rear Left Shoulder
+                                                 {-0.066 - 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0}};  // To Rear Right Shoulder
 
                                          //  d  a  alpha
          static constexpr double DH[3][3] = {{0, a,     -90},  // HA->HF
-                                            {d, link1,   0},  // HF->KF
-                                            {0, link2,   0}}; // KF->Foot
+                                             {d, link1,   0},  // HF->KF
+                                             {0, link2,   0}}; // KF->Foot
 
          // Electrical Parameters
          static constexpr double kv = 90;
@@ -82,15 +82,15 @@ class Claw {
          static constexpr double countsPerRevolution = 2000;
          static constexpr double abductionCPRAngleRelation = countsPerRevolution * reductionHA / 360;
          static constexpr double flexionCPRAngleRelation = countsPerRevolution * reductionHF / 360;
-         static constexpr double encoderOffset[4][3] = {{0, -2971, -8008},
-                                                     {0, 2546, 8283},
-                                                     {0, 725, -1854},
-                                                     {0, -1144, 0}};
+         static constexpr double encoderOffset[4][3] = {{0, -1901, -8008},
+                                                        {0, 569, 8283},
+                                                        {0, 668, -1854},
+                                                        {0, -1163, 0}};
 
-         static constexpr int encoderDirection[4][3] = {{1, 1, 1},
-                                                        {1, 1, 1},
-                                                        {1, 1, 1},
-                                                        {1, 1, 1}};
+         static constexpr int encoderDirection[4][3] = {{1, 1, -1},
+                                                        {1, -1, 1},
+                                                        {1, -1, 1},
+                                                        {1, 1, -1}};
 
 
         // Network
