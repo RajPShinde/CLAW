@@ -4,9 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /Global Options1
         - /Status1
         - /TF1/Frames1
-        - /TFTrajectory1
       Splitter Ratio: 0.5
     Tree Height: 1113
   - Class: rviz/Selection
@@ -141,7 +141,15 @@ Visualization Manager:
         All Enabled: false
         base_link:
           Value: false
+        base_world:
+          Value: true
         foot1:
+          Value: true
+        foot2:
+          Value: true
+        foot3:
+          Value: true
+        foot4:
           Value: true
         hip1:
           Value: false
@@ -167,30 +175,37 @@ Visualization Manager:
           Value: false
         leg4_link2:
           Value: false
+        map:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
       Show Axes: true
       Show Names: true
       Tree:
-        base_link:
-          hip1:
-            leg1_link1:
-              leg1_link2:
-                foot1:
-                  {}
-          hip2:
-            leg2_link1:
-              leg2_link2:
-                {}
-          hip3:
-            leg3_link1:
-              leg3_link2:
-                {}
-          hip4:
-            leg4_link1:
-              leg4_link2:
-                {}
+        map:
+          base_world:
+            base_link:
+              hip1:
+                leg1_link1:
+                  leg1_link2:
+                    foot1:
+                      {}
+              hip2:
+                leg2_link1:
+                  leg2_link2:
+                    foot2:
+                      {}
+              hip3:
+                leg3_link1:
+                  leg3_link2:
+                    foot3:
+                      {}
+              hip4:
+                leg4_link1:
+                  leg4_link2:
+                    foot4:
+                      {}
       Update Interval: 0
       Value: true
     - Class: jsk_rviz_plugin/TFTrajectory
@@ -205,7 +220,7 @@ Visualization Manager:
   Global Options:
     Background Color: 255; 255; 255
     Default Light: true
-    Fixed Frame: base_link
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -229,25 +244,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.9289987683296204
+      Distance: 1.6372132301330566
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.14363425970077515
-        Y: -0.03832592815160751
-        Z: -0.0964728593826294
+        X: -0.015968279913067818
+        Y: -0.05028090253472328
+        Z: 0.08046868443489075
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: -0.2447965145111084
+      Pitch: 0.09020347148180008
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.5253989696502686
+      Yaw: 1.5453989505767822
     Saved: ~
 Window Geometry:
   Displays:

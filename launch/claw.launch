@@ -2,17 +2,21 @@
 <launch>
 
   
-  <!-- <param name="robot_description" textfile="$(find claw)/urdf/claw.urdf" /> -->
+  <param name="robot_description" textfile="$(find claw)/urdf/claw.urdf" />
     
-  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /> -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 
   <!-- Robot Manager -->
   <node name="clawManager" pkg="claw" type="clawManager" output="screen"/> 
 
   <!-- Rviz -->
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" /> -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" />
 
   <node name="base_world" pkg="tf" type="static_transform_publisher" args="0 0 0.386 0 0 0 map base_world 40" />
+
+  <node name="led" pkg="claw" type="rgbLED.py"/>
+
+  <node name="display" pkg="claw" type="display.py"/>
 
   <node name="foot1" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg1_link2 foot1 40" />
   <node name="foot2" pkg="tf" type="static_transform_publisher" args="0.238 0 0 0 0 0 leg2_link2 foot2 40" />
