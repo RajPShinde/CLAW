@@ -75,7 +75,7 @@ class Manager {
         
         void move();
 
-        void poseManipulation();
+        void poseManipulation(odrive_can_ros::CANSimple &master);
 
         double offsetTime(double timeReference, int phaseReference, int &phasePair, double delay, Gait gait);
 

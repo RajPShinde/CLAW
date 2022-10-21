@@ -108,7 +108,7 @@ int Manager::begin(){
                                    {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
                                    {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
             
-            ROS_INFO_STREAM(encoderShadowCount_[2][0]<<" "<<encoderShadowCount_[2][1]<<" "<<encoderShadowCount_[2][2]);
+            ROS_INFO_STREAM(encoderShadowCount_[3][0]<<" "<<encoderShadowCount_[3][1]<<" "<<encoderShadowCount_[3][2]);
 
             // Check and Update Battery Voltage
             master.get_vbus_voltage(allAxis[0]);
@@ -139,9 +139,9 @@ int Manager::begin(){
 }
 
 std::vector<int> Manager::anglesToPosition(std::vector<double> angle, int n){
-    return {(Claw::encoderOffset[n-1][0]/Claw::countsPerRevolution) + ((angle[0]*Claw::reductionHA)/(2*M_PI)), 
-            (Claw::encoderOffset[n-1][1]/Claw::countsPerRevolution) + ((angle[1]*Claw::reductionHF)/(2*M_PI)), 
-            (Claw::encoderOffset[n-1][2]/Claw::countsPerRevolution) + ((angle[2]*Claw::reductionHF)/(2*M_PI))};
+    return {(Claw::encoderOffset[n-1][0]/Claw::countsPerRevolution) + (Claw::encoderDirection[n-1][0]*(angle[0]*Claw::reductionHA)/(2*M_PI)),
+            (Claw::encoderOffset[n-1][1]/Claw::countsPerRevolution) + (Claw::encoderDirection[n-1][1]*(angle[1]*Claw::reductionHF)/(2*M_PI)), 
+            (Claw::encoderOffset[n-1][2]/Claw::countsPerRevolution) + (Claw::encoderDirection[n-1][2]*(angle[2]*Claw::reductionHF)/(2*M_PI))};
 }
 
 std::vector<double> Manager::positionToAngle(std::vector<int> position, int n){
@@ -334,14 +334,23 @@ void Manager::poseManipulation(odrive_can_ros::CANSimple &master){
                        InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), -foot3Leg(2), 3),
                        InverseKinematics::computeJointAngles(foot4Leg(0), foot4Leg(1), -foot4Leg(2), 4));
 
-        auto test = InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), -foot3Leg(2), 3);
-        ROS_INFO_STREAM(test[0]<<" "<<test[1]<<" "<<test[2]<<" "<<timeReference);
+        auto test1 = InverseKinematics::computeJointAngles(foot1Leg(0), foot1Leg(1), -foot1Leg(2), 1);
+        auto test2 = InverseKinematics::computeJointAngles(foot2Leg(0), foot2Leg(1), -foot2Leg(2), 2);
+        auto test3 = InverseKinematics::computeJointAngles(foot3Leg(0), foot3Leg(1), -foot3Leg(2), 3);
+        auto test4 = InverseKinematics::computeJointAngles(foot4Leg(0), foot4Leg(1), -foot4Leg(2), 4);
+        // ROS_INFO_STREAM(test[0]<<" "<<test[1]<<" "<<test[2]<<" "<<timeReference);
 
 
-        // double cmd = Claw::encoderOffset[2][1]/2000 * Claw::encoderDirection[2][1];
     
-        double cmd = (Claw::encoderOffset[2][1]/Claw::countsPerRevolution) - ((test[1]*Claw::reductionHF)/(2*M_PI));
-        master.set_input_pos(allAxis[6], cmd);
+        double cmd1 = (Claw::encoderOffset[0][1]/Claw::countsPerRevolution) + (Claw::encoderDirection[0][1]*(test1[1]*Claw::reductionHF)/(2*M_PI));
+        double cmd2 = (Claw::encoderOffset[1][1]/Claw::countsPerRevolution) + (Claw::encoderDirection[1][1]*(test2[1]*Claw::reductionHF)/(2*M_PI));
+        double cmd3 = (Claw::encoderOffset[2][1]/Claw::countsPerRevolution) + (Claw::encoderDirection[2][1]*(test3[1]*Claw::reductionHF)/(2*M_PI));
+        double cmd4 = (Claw::encoderOffset[3][1]/Claw::countsPerRevolution) + (Claw::encoderDirection[3][1]*(test4[1]*Claw::reductionHF)/(2*M_PI));
+
+        master.set_input_pos(allAxis[4], cmd1);
+        master.set_input_pos(allAxis[5], cmd2);
+        master.set_input_pos(allAxis[6], cmd3);
+        master.set_input_pos(allAxis[7], cmd4);
 
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
