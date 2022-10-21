@@ -51,7 +51,9 @@ def main():
 
     odrv0.can.config.baud_rate = 250000
 
-    odrv0.config.dc_max_negative_current=-0.09
+    odrv0.config.brake_resistance = 0.5
+    odrv0.config.enable_brake_resistor = True
+    odrv0.config.dc_max_negative_current = -0.20
 
     print('Configuring Axis 0');
     odrv0.axis0.config.can.node_id = (odriveNo -1)*2
@@ -101,8 +103,4 @@ def main():
 
 
 main()
-
-# print(odrv0.axis1.error)
-# print(odrv0.axis1.motor.error)
-# print(odrv0.error)
 
