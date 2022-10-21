@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.8
 from luma.core.interface.serial import i2c, spi, pcf8574
 from luma.core.interface.parallel import bitbang_6800
 from luma.core.render import canvas
@@ -13,7 +13,7 @@ serial = i2c(port=1, address=0x3C)
 
 device = sh1106(serial)
 
-video_path = str(Path(__file__).resolve().parent.joinpath('logo_screen_white.mp4'))
+video_path = str(Path(__file__).resolve().parent.joinpath('../assets/logo_screen_white.mp4'))
 
 clip = av.open(video_path)
 
