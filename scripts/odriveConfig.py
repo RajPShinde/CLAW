@@ -49,11 +49,13 @@ def main():
 
     odrv0 = getOdrive()
 
-    odrv0.can.config.baud_rate = 250000
+    odrv0.can.config.baud_rate = 500000
 
     odrv0.config.brake_resistance = 0.5
     odrv0.config.enable_brake_resistor = True
     odrv0.config.dc_max_negative_current = -0.20
+
+    odrv0.clear_errors()
 
     print('Configuring Axis 0');
     odrv0.axis0.config.can.node_id = (odriveNo -1)*2
@@ -63,8 +65,8 @@ def main():
 
     odrv0.axis0.motor.config.current_lim = 30
     odrv0.axis0.motor.config.calibration_current = 15
-    odrv0.axis0.motor.config.resistance_calib_max_voltage = 4
-    odrv0.axis0.controller.config.vel_limit = 30
+    odrv0.axis0.motor.config.resistance_calib_max_voltage = 2
+    odrv0.axis0.controller.config.vel_limit = 10
 
     calibrateMotor(odrv0, odrv0.axis0)
     odrv0.axis0.motor.config.pre_calibrated = True
@@ -77,6 +79,17 @@ def main():
 
     odrv0.axis0.config.startup_closed_loop_control = False
 
+    odrv0.axis0.controller.config.pos_gain = 100
+
+    odrv0.axis0.controller.config.input_mode = INPUT_MODE_POS_FILTER
+    odrv0.axis0.controller.config.input_filter_bandwidth = 10
+
+
+    print(odrv0.error)
+    print(odrv0.axis0.error)
+    print(odrv0.axis0.motor.error)
+    print(odrv0.axis0.encoder.error)
+
     print('Configuring Axis 1');
     odrv0.axis1.config.can.node_id = (odriveNo -1)*2 + 1
     odrv0.axis1.motor.config.pole_pairs=20
@@ -85,8 +98,8 @@ def main():
 
     odrv0.axis1.motor.config.current_lim = 30
     odrv0.axis1.motor.config.calibration_current = 15
-    odrv0.axis1.motor.config.resistance_calib_max_voltage = 4
-    odrv0.axis1.controller.config.vel_limit = 30
+    odrv0.axis1.motor.config.resistance_calib_max_voltage = 2
+    odrv0.axis1.controller.config.vel_limit = 10
 
     calibrateMotor(odrv0, odrv0.axis1)
     odrv0.axis1.motor.config.pre_calibrated = True
@@ -99,8 +112,19 @@ def main():
 
     odrv0.axis1.config.startup_closed_loop_control = False
 
+    odrv0.axis1.controller.config.pos_gain = 100
+
+    odrv0.axis1.controller.config.input_filter_bandwidth = 10
+    odrv0.axis1.controller.config.input_mode = INPUT_MODE_POS_FILTER
+
+    print(odrv0.error)
+    print(odrv0.axis1.error)
+    print(odrv0.axis1.motor.error)
+    print(odrv0.axis1.encoder.error)
+
     odrv0.save_configuration()
 
 
 main()
+
 
