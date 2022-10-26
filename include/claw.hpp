@@ -57,7 +57,7 @@ class Claw {
          static constexpr double link2 = 0.238; // tibia
          static constexpr double a = 0.03617;
          static constexpr double d = 0.00;
-         static constexpr double idleLegHeight = 0.35;
+         static constexpr double idleLegHeight = 0.40;
          static constexpr double legMaxHeight = 0.45;
          static constexpr double legMinHeight = 0.20;
          static constexpr int noOfActuators = 12;
@@ -82,13 +82,13 @@ class Claw {
          static constexpr double countsPerRevolution = 2000;
          static constexpr double abductionCPRAngleRelation = countsPerRevolution * reductionHA / 360;
          static constexpr double flexionCPRAngleRelation = countsPerRevolution * reductionHF / 360;
-         static constexpr double encoderOffset[4][3] = {{0, -1901, -8008},
-                                                        {0, 569, 8283},
-                                                        {0, 668, -1854},
-                                                        {0, -1163, 0}};
+         static constexpr double encoderOffset[4][3] = {{-119, -449, -8010},
+                                                        {273, 555, 8330},
+                                                        {-123, 55, 8843},
+                                                        {147, -1145, -7698}};
 
-         static constexpr int encoderDirection[4][3] = {{1, 1, -1},
-                                                        {1, -1, 1},
+         static constexpr int encoderDirection[4][3] = {{-1, 1, -1},
+                                                        {-1, -1, 1},
                                                         {1, -1, 1},
                                                         {1, 1, -1}};
 
