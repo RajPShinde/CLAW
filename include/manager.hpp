@@ -69,11 +69,11 @@ class Manager {
 
         int begin();
 
-        std::vector<int> anglesToPosition(std::vector<double> angle, int n);
+        std::vector<double> anglesToPosition(std::vector<double> angle, int n);
 
         std::vector<double> positionToAngle(std::vector<int> position, int n);
         
-        void move();
+        void move(odrive_can_ros::CANSimple &master);
 
         void poseManipulation(odrive_can_ros::CANSimple &master);
 
@@ -85,14 +85,14 @@ class Manager {
 
         void idleOdrives(odrive_can_ros::CANSimple &master);
 
-        void statePublisher(std::vector<double> l1, std::vector<double> l2, std::vector<double> l3, std::vector<double> l4);
+        void statePublisher();
 
     private:
         bool managerStatus = true;
         double commandValue_ = 1;
         double commandDirection_ = 1;
         double batteryVoltage_ = 0;
-        std::string state_ = "MOVE_BASE";
+        std::string state_ = "WALK";
         std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
         std::vector<std::vector<int>> encoderShadowCount_;
@@ -102,6 +102,8 @@ class Manager {
         ForwardKinematics fk_;
 
         Pose base = {0, 0, 0};
+
+        std::vector<double> legState1, legState2, legState3, legState4;
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_
