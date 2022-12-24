@@ -80,12 +80,12 @@ Eigen::Matrix4d ForwardKinematics::inverseH(Eigen::Matrix4d H){
 }
 
 Eigen::Matrix4d ForwardKinematics::ai(double theta, double d, double a, double alpha){
-    Eigen::Matrix4d ai;
-    ai << std::cos(theta), -1*std::sin(theta)*std::cos(alpha), std::sin(theta)*std::sin(alpha),    a*std::cos(theta),
+    Eigen::Matrix4d aiH;
+    aiH << std::cos(theta), -1*std::sin(theta)*std::cos(alpha), std::sin(theta)*std::sin(alpha),    a*std::cos(theta),
           std::sin(theta), std::cos(theta)*std::cos(alpha),    -1*std::cos(theta)*std::sin(alpha), a*std::sin(theta),
           0              , std::sin(alpha)                ,    std::cos(alpha)                  ,  d,
           0              , 0                              ,    0                                ,  1;
-    return ai;
+    return aiH;
 }
 
 Eigen::Matrix4d ForwardKinematics::worldToBaseH(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot){
@@ -100,11 +100,11 @@ Eigen::Matrix4d ForwardKinematics::worldToLegH(double xTrans, double yTrans, dou
     return worldToBaseH(xTrans, yTrans, zTrans, xRot, yRot, zRot) * baseToLegH(n);
 }
 
-Eigen::Matrix4d ForwardKinematics::legToFootH(std::vector<double> jointAngles, int n){
+Eigen::Vector3d ForwardKinematics::legToFootH(std::vector<double> jointAngles, int n){
     double dir = 1;
     if(n == (2 || 3))
         dir = -1;
-    return ai(jointAngles[0], Claw::DH[0][1], Claw::DH[0][2], Claw::DH[0][3]) * ai(jointAngles[1], dir*Claw::DH[1][1], Claw::DH[1][2], Claw::DH[1][3]) * ai(jointAngles[2], Claw::DH[2][1], Claw::DH[2][2], Claw::DH[2][3]);
+    return (ai(jointAngles[0], Claw::DH[0][0], Claw::DH[0][1], Claw::DH[0][2]) * ai(jointAngles[1], dir*Claw::DH[1][0], Claw::DH[1][1], Claw::DH[1][2]) * ai(jointAngles[2], Claw::DH[2][0], Claw::DH[2][1], Claw::DH[2][2])).block<3,1>(0,3);
 }
 
 Eigen::Vector3d ForwardKinematics::footInLegFrame(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, Eigen::Vector3d p, int n){

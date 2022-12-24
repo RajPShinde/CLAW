@@ -54,11 +54,10 @@ Eigen::MatrixXd VelocityKinematics::jacobian(std::vector<double> jointAngles, in
     double dir = 1;
     if(n == (2 || 3))
         dir = -1;
-
-    std::vector<std::vector<double>> DH;
-    Eigen::Matrix4d h12 = ai(jointAngles[0], DH[0][1], DH[0][2], DH[0][3]);
-    Eigen::Matrix4d h13 = h12*ai(jointAngles[1], dir*DH[1][1], DH[1][2], DH[1][3]);
-    Eigen::Matrix4d h14 = h13*ai(jointAngles[2], DH[2][1], DH[2][2], DH[2][3]);
+    
+    Eigen::MatrixXd h12 = ai(jointAngles[0], Claw::DH[0][0], Claw::DH[0][1], Claw::DH[0][2]);
+    Eigen::MatrixXd h13 = h12*ai(jointAngles[1], dir*Claw::DH[1][0], Claw::DH[1][1], Claw::DH[1][2]);
+    Eigen::MatrixXd h14 = h13*ai(jointAngles[2], Claw::DH[2][0], Claw::DH[2][1], Claw::DH[2][2]);
 
     Eigen::Vector3d o1 = {0, 0, 0};
     Eigen::Vector3d o2 = h12.block<3,1>(0,3);

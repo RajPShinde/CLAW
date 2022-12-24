@@ -44,6 +44,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDE_VELOCITYKINEMATICS_HPP_
 #define INCLUDE_VELOCITYKINEMATICS_HPP_
 
+#include <iostream>
+#include <ros/ros.h>
 #include <math.h>
 #include <claw.hpp>
 #include <forwardKinematics.hpp>

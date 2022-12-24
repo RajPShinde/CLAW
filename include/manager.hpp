@@ -52,6 +52,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <claw.hpp>
 #include <inverseKinematics.hpp>
 #include <forwardKinematics.hpp>
+#include <velocityKinematics.hpp>
 #include <trajectory.hpp>
 #include <odrive_can_ros/ODriveEnums.h>
 #include <odrive_can_ros/can_simple.hpp>
@@ -71,7 +72,7 @@ class Manager {
 
         std::vector<double> anglesToPosition(std::vector<double> angle, int n);
 
-        std::vector<double> positionToAngle(std::vector<int> position, int n);
+        std::vector<double> positionToAngle(int n);
         
         void move(odrive_can_ros::CANSimple &master);
 
@@ -79,7 +80,7 @@ class Manager {
 
         double offsetTime(double timeReference, int phaseReference, int &phasePair, double delay, Gait gait);
 
-        void initializeOdrives(odrive_can_ros::CANSimple &master);
+        void initializeOdrives(odrive_can_ros::CANSimple &master, std::string controlMode);
 
         void commandOdrives(odrive_can_ros::CANSimple &master);
 
@@ -96,6 +97,7 @@ class Manager {
         std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
         std::vector<std::vector<int>> encoderShadowCount_;
+        std::vector<double> jointVelocity_;
         std::vector<odrive_can_ros::ODriveAxis> allAxis;
 
         ros::Publisher jointStatePublisher_;

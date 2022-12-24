@@ -72,7 +72,7 @@ class ForwardKinematics {
 
         Eigen::Matrix4d worldToLegH(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, int n);
 
-        Eigen::Matrix4d legToFootH(std::vector<double> JointAngles, int n);
+        Eigen::Vector3d legToFootH(std::vector<double> JointAngles, int n);
 
         Eigen::Vector3d footInLegFrame(double xTrans, double yTrans, double zTrans, double xRot, double yRot, double zRot, Eigen::Vector3d p, int n);
 
