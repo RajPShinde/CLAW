@@ -37,19 +37,39 @@ t1 = threading.Thread(target=status)
 t1.start()
 
 while True:
-    pixels[0] = 0x00FF00
-    pixels[1] = 0x00FF00
 
-    pixels[2] = 0x00FF00
-    pixels[3] = 0x00FF00
-
-    pixels.show()
-    time.sleep(1)
     pixels[0] = 0x000000
     pixels[1] = 0x000000
     pixels[2] = 0x000000
     pixels[3] = 0x000000
     pixels.show()
-    time.sleep(1)
+    time.sleep(0.8)
 
-t1.join()
+    pixels[0] = 0x00FF00
+    pixels[1] = 0x00FF00
+    pixels[2] = 0x00FF00
+    pixels[3] = 0x00FF00
+    pixels.show()
+    time.sleep(0.10)
+
+
+
+    pixels[0] = 0x000000
+    pixels[1] = 0x000000
+    pixels[2] = 0x000000
+    pixels[3] = 0x000000
+    pixels.show()
+    time.sleep(0.30)
+
+
+
+    pixels[0] = 0x00FF00
+    pixels[1] = 0x00FF00
+    pixels[2] = 0x00FF00
+    pixels[3] = 0x00FF00
+    pixels.show()
+    time.sleep(0.10)
+
+
+
+# t1.join()

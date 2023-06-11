@@ -12,6 +12,9 @@ import PIL
 serial = i2c(port=1, address=0x3C)
 
 device = sh1106(serial)
+print(device.width)
+
+print(device.height)
 
 video_path = str(Path(__file__).resolve().parent.joinpath('../assets/logo_screen_white.mp4'))
 

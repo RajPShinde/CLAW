@@ -43,5 +43,5 @@ echo "source /home/claw/claw_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 
 # Configure CAN
-sudo ip link set can0 up type can bitrate 500000 restart-ms 1
+sudo ip link set can0 up type can bitrate 1000000 restart-ms 1
 sudo ip link set can0 txqueuelen 500
