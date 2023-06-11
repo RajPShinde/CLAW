@@ -102,28 +102,20 @@ int Manager::begin(){
     // Background Thread
     std::thread sensorData( [&master, this]() {
         while(master.is_ready() && managerStatus) {
-            // // Update Joint Encoder Data
+            // Update Joint Encoder Data
             // for(auto &a:allAxis){
             //     master.get_encoder_count(a);
             //     master.get_encoder_estimates(a);
             // }
 
-            // master.get_iq(master.axis("HA4"));
-            // master.get_iq(master.axis("HF4"));
-            // master.get_iq(master.axis("KF4"));
-
-            // ROS_INFO_STREAM(master.axis("HA4").idq_second<<" "<<master.axis("HF4").idq_second<<" "<<master.axis("KF4").idq_second);
-
             // encoderShadowCount_ = {{master.axis("HA1").encoder_shadow_count, master.axis("HF1").encoder_shadow_count, master.axis("KF1").encoder_shadow_count},
             //                        {master.axis("HA2").encoder_shadow_count, master.axis("HF2").encoder_shadow_count, master.axis("KF2").encoder_shadow_count},
             //                        {master.axis("HA3").encoder_shadow_count, master.axis("HF3").encoder_shadow_count, master.axis("KF3").encoder_shadow_count},
             //                        {master.axis("HA4").encoder_shadow_count, master.axis("HF4").encoder_shadow_count, master.axis("KF4").encoder_shadow_count}};
-
-            // jointVelocity_ = {master.axis("HA1").vel_enc_estimate*2*3.14, master.axis("HF1").vel_enc_estimate*2*3.14, master.axis("KF1").vel_enc_estimate*2*3.14};
-            
-            // Test
-            // ROS_INFO_STREAM(encoderShadowCount_[0][0]<<" "<<encoderShadowCount_[0][1]<<" "<<encoderShadowCount_[0][2]);
+    
             // ROS_INFO_STREAM(encoderShadowCount_[0][1]<<" "<<encoderShadowCount_[1][1]<<" "<<encoderShadowCount_[2][1]<<" "<<encoderShadowCount_[3][1]);
+
+            // ROS_INFO_STREAM(encoderShadowCount_[1][0]<<" "<<encoderShadowCount_[1][1]<<" "<<encoderShadowCount_[1][2]);
 
             // // Check and Update Battery Voltage
             // master.get_vbus_voltage(allAxis[0]);
@@ -193,7 +185,7 @@ void Manager::move(odrive_can_ros::CANSimple &master){
 
     VelocityKinematics v;
     
-    Gait gait(0.12, 0.1, 0.4, 1, "trot");
+    Gait gait(0.06, 0.2, 0.2, 1, "trot");
     while(state_ == "WALK" || inMotion){ 
         inMotion = true;       
 
@@ -204,7 +196,7 @@ void Manager::move(odrive_can_ros::CANSimple &master){
         long long microseconds = std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
         double timeReference = microseconds * 1e-6;
         double time1 = offsetTime(timeReference, phaseReference, phasePair1, 0, gait);
-        double time2 = offsetTime(timeReference, phaseReference, phasePair2, 0.7, gait);
+        double time2 = offsetTime(timeReference, phaseReference, phasePair2, 0.6, gait);
 
 
         if(!allow2 && !phasePair2 && time2 >= 0){
@@ -295,10 +287,12 @@ void Manager::move(odrive_can_ros::CANSimple &master){
             // if(f==10)
             //     state_ = "NONE";
 
-            legState1 = InverseKinematics::computeJointAngles(pair1.x, pair1.y, pair1.z, 1);
-            legState2 = InverseKinematics::computeJointAngles(pair2.x, pair2.y, pair2.z, 2);
-            legState3 = InverseKinematics::computeJointAngles(pair1.x, pair1.y, pair1.z, 3);
-            legState4 = InverseKinematics::computeJointAngles(pair2.x, pair2.y, pair2.z, 4);
+            double spread = 0.0;
+            double streach = 0.0;
+            legState1 = InverseKinematics::computeJointAngles(pair1.x, pair1.y + spread, pair1.z - streach, 1);
+            legState2 = InverseKinematics::computeJointAngles(pair2.x, pair2.y - spread, pair2.z - streach, 2);
+            legState3 = InverseKinematics::computeJointAngles(pair1.x, pair1.y - spread, pair1.z + streach, 3);
+            legState4 = InverseKinematics::computeJointAngles(pair2.x, pair2.y + spread, pair2.z + streach, 4);
             // legState3[1] = -legState3[1];
             // legState3[2] = -legState3[2];
             // legState4[1] = -legState4[1];
@@ -370,7 +364,7 @@ void Manager::move(odrive_can_ros::CANSimple &master){
             //     master.set_input_torque(allAxis[i], tq[i]);
             // }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
 
             if(!allow1 && !allow2)
                 break;
@@ -384,7 +378,9 @@ void Manager::poseManipulation(odrive_can_ros::CANSimple &master){
     Gait gait;
     Trajectory traj(gait, "test");
     double s = 0;
-    double g = -0.23;
+    double g = -0.2;
+
+    int jk = 0;
 
     static tf::TransformBroadcaster br;
     tf::Transform transform;
@@ -401,6 +397,10 @@ void Manager::poseManipulation(odrive_can_ros::CANSimple &master){
         br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_world", "base_link"));
 
         if(timeReference >= 5){
+            if(jk==0){
+                jk = 1;
+                s = 0.2;
+            }
             start = std::chrono::high_resolution_clock::now();
             double temp = s;
             s = g;
@@ -412,14 +412,14 @@ void Manager::poseManipulation(odrive_can_ros::CANSimple &master){
             base.y = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 5, timeReference);
             base.z = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 5, timeReference);
             base.roll = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 5, timeReference);
-            base.pitch = traj.jerkMinimizedTrajectory(s, 0, 0, g, 0, 0, 5, timeReference);
+            base.pitch = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 5, timeReference);
             base.yaw = traj.jerkMinimizedTrajectory(0, 0, 0, 0, 0, 0, 5, timeReference);
             
             double reduceLegHeightBy = 0;
             Eigen::Vector3d foot1World = {Claw::bodyTF[0][0], Claw::bodyTF[0][1]+0.05, Claw::bodyTF[0][2] - Claw::idleLegHeight - reduceLegHeightBy};
             Eigen::Vector3d foot2World = {Claw::bodyTF[1][0], Claw::bodyTF[1][1]-0.05, Claw::bodyTF[1][2] - Claw::idleLegHeight - reduceLegHeightBy};
-            Eigen::Vector3d foot3World = {Claw::bodyTF[2][0]-0.01, Claw::bodyTF[2][1]-0.05, Claw::bodyTF[2][2] - Claw::idleLegHeight - reduceLegHeightBy};
-            Eigen::Vector3d foot4World = {Claw::bodyTF[3][0]-0.01, Claw::bodyTF[3][1]+0.05, Claw::bodyTF[3][2] - Claw::idleLegHeight - reduceLegHeightBy};
+            Eigen::Vector3d foot3World = {Claw::bodyTF[2][0], Claw::bodyTF[2][1]-0.05, Claw::bodyTF[2][2] - Claw::idleLegHeight - reduceLegHeightBy};
+            Eigen::Vector3d foot4World = {Claw::bodyTF[3][0], Claw::bodyTF[3][1]+0.05, Claw::bodyTF[3][2] - Claw::idleLegHeight - reduceLegHeightBy};
 
             Eigen::Vector3d foot1Leg = fk_.footInLegFrame(base.x, base.y, base.z, base.roll, base.pitch, base.yaw, foot1World, 1);
             Eigen::Vector3d foot2Leg = fk_.footInLegFrame(base.x, base.y, base.z, base.roll, base.pitch, base.yaw, foot2World, 2);
@@ -432,6 +432,7 @@ void Manager::poseManipulation(odrive_can_ros::CANSimple &master){
             legState4 = InverseKinematics::computeJointAngles(foot4Leg(0), foot4Leg(1), -foot4Leg(2), 4);
 
             commandOdrives(master);
+            state_ == "NONE";
             statePublisher();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(10));

@@ -93,7 +93,7 @@ class Manager {
         double commandValue_ = 1;
         double commandDirection_ = 1;
         double batteryVoltage_ = 0;
-        std::string state_ = "WALK";
+        std::string state_ = "MOVE_BASE";
         std::vector<std::vector<double>> jointAngles_;
         const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
         std::vector<std::vector<int>> encoderShadowCount_;

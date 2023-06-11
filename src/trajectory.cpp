@@ -44,18 +44,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <trajectory.hpp>
 
 Trajectory::Trajectory(Gait &obj, std::string s): gait_(obj), legTrajectoryType_(s){
-    controlPoints_ = {{-0.06, 0, 0},
-                      {-0.08, 0, 0},
-                      {-0.11, 0.05, 0},
-                      {-0.11, 0.05, 0},
-                      {-0.11, 0.05, 0},
-                      {0, 0.05, 0},
-                      {0, 0.05, 0},
-                      {0, 0.08, 0},
-                      {0.11, 0.08, 0},
-                      {0.11, 0.08, 0},
-                      {0.08, 0, 0},
-                      {0.06, 0, 0}};
+    controlPoints_ = {{-0.03, 0, 0},
+                      {-0.035, 0, 0},
+                      {-0.05, 0.035, 0},
+                      {-0.05, 0.035, 0},
+                      {-0.05, 0.035, 0},
+                      {0, 0.035, 0},
+                      {0, 0.035, 0},
+                      {0, 0.035, 0},
+                      {0.05, 0.035, 0},
+                      {0.05, 0.035, 0},
+                      {0.035, 0, 0},
+                      {0.03, 0, 0}};
 }
 
 Trajectory::~Trajectory(){
@@ -136,7 +136,6 @@ Eigen::Vector3d Trajectory::stancePhaseTrajectory(double t, int cycle) {
             stride = gait_.stride/2;
             offset = -gait_.stride/4;
         }
-
         t = gait_.tStance- t;
         double xd = stride / gait_.tStance;
         x = xd*t - (stride/2) - offset;

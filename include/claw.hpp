@@ -52,22 +52,22 @@ class Claw {
     public:
          // Mechanical Parameters
          static constexpr double femur = 0.2245;
-         static constexpr double tibia = 0.238;
+         static constexpr double tibia = 0.2245;
          static constexpr double link1 = 0.2245; // femur
-         static constexpr double link2 = 0.238; // tibia
-         static constexpr double a = 0.03617;
+         static constexpr double link2 = 0.2245; // tibia
+         static constexpr double a = 0.03315;
          static constexpr double d = 0.00;
-         static constexpr double idleLegHeight = 0.42;
+         static constexpr double idleLegHeight = 0.43;
          static constexpr double legMaxHeight = 0.50;
          static constexpr double legMinHeight = 0.20;
          static constexpr int noOfActuators = 12;
-         static constexpr double reductionHA = 3;
+         static constexpr double reductionHA = 5.25;
          static constexpr double reductionHF = 10.8;
          static constexpr double reductionKF = 10.8;
-         static constexpr double bodyTF[4][6] = {{ 0.066 + 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Left Shoulder
-                                                 { 0.066 + 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Front Right Shoulder
-                                                 {-0.066 - 0.173, -0.141, -0.031 - 0.036, 0, M_PI/2, 0},   // To Rear Left Shoulder
-                                                 {-0.066 - 0.173,  0.141, -0.031 - 0.036, 0, M_PI/2, 0}};  // To Rear Right Shoulder
+         static constexpr double bodyTF[4][6] = {{ 0.222,  0.139, -0.031 - 0.03315, 0, M_PI/2, 0},   // To Front Left Shoulder
+                                                 { 0.222, -0.139, -0.031 - 0.03315, 0, M_PI/2, 0},   // To Front Right Shoulder
+                                                 {-0.222, -0.139, -0.031 - 0.03315, 0, M_PI/2, 0},   // To Rear Left Shoulder
+                                                 {-0.222,  0.139, -0.031 - 0.03315, 0, M_PI/2, 0}};  // To Rear Right Shoulder
 
                                          //  d  a  alpha
          static constexpr double DH[3][3] = {{0, a,     -90},  // HA->HF
@@ -82,10 +82,10 @@ class Claw {
          static constexpr double countsPerRevolution = 2000;
          static constexpr double abductionCPRAngleRelation = (2*M_PI) / (countsPerRevolution *reductionHA);
          static constexpr double flexionCPRAngleRelation = (2*M_PI) / (countsPerRevolution *reductionHF);
-         static constexpr double encoderOffset[4][3] = {{-157, -149, -7431},
-                                                        {57, 923, 8329},
-                                                        {-109, 261, 8875},
-                                                        {160, -1125, -8737}};
+         static constexpr double encoderOffset[4][3] = {{-175, -1934, -7934},
+                                                        {114, 1511, 7926},
+                                                        {-41, 813, 7876},
+                                                        {30, -1370, -7711}};
 
          static constexpr int encoderDirection[4][3] = {{-1, 1, -1},
                                                         {-1, -1, 1},
