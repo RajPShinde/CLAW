@@ -1,4 +1,4 @@
-<img src="assets/logo.JPG" width="400"/>
+<img src="assets/logo.jpg" width="400"/>
 
 [![License BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/RajPShinde/CLAW/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/RajPShinde/CLAW.svg?branch=master)](https://travis-ci.org/RajPShinde/CLAW)
@@ -8,10 +8,10 @@
 
 ## Overview
 <p align="center">
-<img src="assets/claw.GIF"/>
+<img src="assets/claw.gif"/>
 </p>
 An Open Source Quadruped Robot.
-<img src="assets/sponsors.JPG"/>
+<img src="assets/sponsors.jpg"/>
 
 ## Dependencies
 1. [ROS Noetic](http://wiki.ros.org/noetic)
