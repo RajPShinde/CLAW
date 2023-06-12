@@ -1,4 +1,4 @@
-<img src="assets/claw.png" width="510"/>
+<img src="assets/logo.JPG" width="400"/>
 
 [![License BSD 3-Clause](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://github.com/RajPShinde/CLAW/blob/master/LICENSE)
 [![Build Status](https://travis-ci.org/RajPShinde/CLAW.svg?branch=master)](https://travis-ci.org/RajPShinde/CLAW)
@@ -7,25 +7,37 @@
 ---
 
 ## Overview
+<p align="center">
+<img src="assets/claw.GIF"/>
+</p>
 An Open Source Quadruped Robot.
+<img src="assets/sponsors.JPG"/>
 
 ## Dependencies
-1. ROS Melodic
-2. JetPack 4.5
-3. C++ 14
-4. Python 3.8
-5. Eigen 3.4.0
-6. [libi2c](https://github.com/amaork/libi2c)
-7. [odrive_can](https://github.com/swankun/odrive_can)
-8. Adafru
+1. [ROS Noetic](http://wiki.ros.org/noetic)
+2. [OCS2](https://github.com/leggedrobotics/ocs2)
+3. [Eigen 3.4.0](https://eigen.tuxfamily.org/index.php?title=Main_Page)
+4. [odrive_can](https://github.com/swankun/odrive_can)
+5. [U8g2](https://github.com/olikraus/u8g2)
+
+## Hardware
+1. UP Xtreme i12- Core i5-1250PE 16GB RAM
+2. Odrive 3.6 Motor Controller
+3. Intel Realsense D435i
+4. 8308 90Kv Outrunner BLDC
+5. AS5047P Encoder
+6. MCP2515 CAN Controller
+7. MPU9265 9-DOF IMU
+8. ADS1115 4-Channel ADC
+9. WS2812B Addressable LED
+10. SHI1106 128X64 OLED
+11. MD30-60 Pressure Sensor
 
 ## Install & Build
 ```
 mkdir -p ~/claw_ws/src
 cd ~/claw_ws/src
 git clone https://github.com/RajPShinde/CLAW
-cd CLAW
-sudo ./install.sh
 ```
 
 ## TO-DO's
@@ -41,7 +53,7 @@ sudo ./install.sh
 ### Kinematics
 - [x] Inverse Kinematics
 - [x] Forward Kinematics
-- [ ] Velocity Kinematics
+- [x] Velocity Kinematics
 ### Controls
 - [ ] Hybrid Control (Impedance + Position)
 ### Trajectory Planning
@@ -57,7 +69,7 @@ sudo ./install.sh
 ```
 BSD 3-Clause License
 
-Copyright (c) 2022, Raj Shinde
+Copyright (c) 2023, Raj Shinde
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
