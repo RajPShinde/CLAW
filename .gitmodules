@@ -1,3 +1,6 @@
 [submodule "lib/odrive_can"]
 	path = lib/odrive_can
 	url = https://github.com/RajPShinde/odrive_can
+[submodule "lib/ADS1115"]
+	path = lib/ADS1115
+	url = https://github.com/lokraszewski/ADS1115
