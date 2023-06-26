@@ -98,4 +98,18 @@ struct Gait{
     Gait(double a, double b, double c, double d, std::string e): stride(a), height(b), tSwing(c), tStance(d), tDelay(tStance - tSwing), type(e) {};
 };
 
+struct ImuData {
+  double orientation[4];
+  double oorientationCovariance[9];
+  double angularVelocity[3]; 
+  double angularVelocityCovarinace[9]; 
+  double linearAcceleration[3]; 
+  double linearAccelerationCovariance[9];
+};
+
+struct ActuatorData {
+  double position, velocity, torque;  
+  double positionDesired, velocityDesired, kp, kd, ff;
+};
+
 #endif  //  INCLUDE_DATA_HPP_

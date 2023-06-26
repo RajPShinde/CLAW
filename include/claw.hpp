@@ -93,8 +93,14 @@ class Claw {
                                                         {1, 1, -1}};
 
 
-        // Network
-        static constexpr char canDevice[] = "can0";
+        // Port
+        static constexpr char ODRIVE_PORT[] = "can0";
+        static constexpr char ADS111_PORT[] = "/dev/i2c-3";
+        static constexpr char MPU9255_PORT[] = "/dev/i2c-3";
+
+        // Address
+        static constexpr uint8_t ADS111_ADDRESS = 0x48;
+        static constexpr uint8_t MPU9255_ADDRESS = 0x68;
 
         // General Parameters
         static constexpr char legConfiguration[] = ">>";

@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2022, Raj Shinde
+Copyright (c) 2023, Raj Shinde
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,9 +35,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @author Raj Shinde
  * @brief 
  * @version 0.1
- * @date 2022-10-09
- * 
- * @copyright BSD 3-Clause License, Copyright (c) 2022
+ * @date 2023-06-25
+ * @copyright BSD 3-Clause License, Copyright (c) 2023
  * 
  */
 
@@ -48,8 +47,19 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <math.h>
 
 #include <ros/ros.h>
+#include <urdf/model.h>
+#include <hardware_interface/imu_sensor_interface.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/robot_hw.h>
+#include <socketcan_interface/socketcan.h>
 
+
+#include <odrive_can_ros/ODriveEnums.h>
+#include <odrive_can_ros/can_simple.hpp>
 #include <claw.hpp>
+#include <data.hpp>
+#include <contactSensor.hpp>
+#include <status.hpp>
 
 class HardwareInterface : public hardware_interface::RobotHW {
 
@@ -75,6 +85,18 @@ class HardwareInterface : public hardware_interface::RobotHW {
          void setupContactSensor();
 
    private:
+         hardware_interface::JointStateInterface jointStateInterface_;
+         hardware_interface::ImuSensorInterface imuSensorInterface_;
+         
+         std::shared_ptr<urdf::Model> urdfModel_;
+         odrive_can_ros::CANSimple master_;
+         std::vector<odrive_can_ros::ODriveAxis> allAxis_;
+
+         ImuData imuData_;
+         ActuatorData jointData_[12];
+
+         double batteryVoltage_;
+
 };
 
 #endif  //  INCLUDE_HARDWAREINTERFACE_HPP_

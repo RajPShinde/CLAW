@@ -34,9 +34,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @file hardwareInterface.cpp
  * @author Raj Shinde
  * @brief 
- * @version 1.0
- * @date 2023-07-04
- * 
+ * @version 0.1
+ * @date 2023-06-25
  * @copyright BSD 3-Clause License, Copyright (c) 2023
  * 
  */
@@ -47,16 +46,61 @@ HardwareInterface::HardwareInterface(){
    initialize();
 }
 
-HardwareInterface::HardwareInterface(){
+HardwareInterface::~HardwareInterface(){
   
 }
 
 void HardwareInterface::initialize(){
 
+   // Setup handlers
+   setupJoints();
+   setupImu();
+   setupContactSensor();
+
+   // Setup Odrive
+   initializeOdrive();
 }
 
 void HardwareInterface::initializeOdrive(){
+   if (!(master_.add_axis(0, "KF1") && master_.add_axis(1, "HF1") &&
+         master_.add_axis(2, "HA2") && master_.add_axis(3, "HA1") &&
+         master_.add_axis(4, "KF2") && master_.add_axis(5, "HF2") &&
+         master_.add_axis(6, "KF3") && master_.add_axis(7, "HF3") &&
+         master_.add_axis(8, "HA4") && master_.add_axis(9, "HA3") &&
+         master_.add_axis(10, "KF4") && master_.add_axis(11, "HF4")))
+   {
+      ROS_ERROR_STREAM("Failed to create one or more axis. Aborting");
+      return;
+   }
 
+   allAxis_ = {master_.axis("HA1"), master_.axis("HF1"), master_.axis("KF1"),
+              master_.axis("HA2"), master_.axis("HF2"), master_.axis("KF2"),
+              master_.axis("HA3"), master_.axis("HF3"), master_.axis("KF3"),
+              master_.axis("HA4"), master_.axis("HF4"), master_.axis("KF4")};
+
+   // Create Interface to SocketCAN 
+   can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
+   if (!driver->init(Claw::ODRIVE_PORT, 0, can::NoSettings::create()))
+   {
+      ROS_ERROR_STREAM("Failed to initialize can device");
+      return;
+   }
+   can::StateListenerConstSharedPtr state_listener = driver->createStateListener(
+      [&driver](const can::State& s) {
+         std::string err;
+         driver->translateError(s.internal_error, err);
+         ROS_ERROR_STREAM("CAN Device error");
+                     fprintf(stderr, "CAN Device error: %s, asio: %s.\n", 
+               err.c_str(), s.error_code.message().c_str());
+      }
+   );
+
+   master_.init(driver);
+
+   // Start Torque Control on All Axis
+   for(int i = 0; i<allAxis_.size(); i++){
+      master_.set_axis_requested_state(allAxis_[i], odrive_can_ros::AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
+   }
 }
 
 void HardwareInterface::read(){
@@ -76,9 +120,12 @@ void HardwareInterface::setupJoints(){
 }
 
 void HardwareInterface::setupImu(){
-   
+   imuSensorInterface_.registerHandle(hardware_interface::ImuSensorHandle("imu", "imu", imuData_.orientation, imuData_.oorientationCovariance,
+                                                                           imuData_.angularVelocity, imuData_.angularVelocityCovarinace, 
+                                                                           imuData_.linearAcceleration, imuData_.linearAccelerationCovariance));
 }
 
 void HardwareInterface::setupContactSensor(){
 
 }
+
