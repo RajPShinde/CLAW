@@ -55,16 +55,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class Status {
 
    public:
-         Status();
-        
-         ~Status();
+      Status();
+      
+      ~Status();
 
-         void initialize();
+      void initialize();
 
-         void display();
+      void spiTransfer(int spiDevice, uint8_t* data, int length);
+
+      void sendLedData(int spiDevice, uint8_t* ledData, int length);
+
+      void setColour(uint8_t (&ledData)[Claw::ledCount * 3], int num);
+
+      void display();
 
    private:
-
+      int spiDevice_;
+      uint8_t ledData_[Claw::ledCount * 3];
 
 };
 

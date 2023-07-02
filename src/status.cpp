@@ -46,15 +46,64 @@ Status::Status(){
    initialize();
 }
 
-Status::Status(){
-  
+Status::~Status(){
+   memset(ledData_, 0, sizeof(ledData_));
+   sendLedData(spiDevice_, ledData_, sizeof(ledData_));
+   close(spiDevice_);
 }
 
 void Status::initialize(){
+   spiDevice_ = open(Claw::WS2812B_PORT, O_RDWR);
+   if (spiDevice_ < 0) {
+      std::cerr << "Failed to open SPI device" << std::endl;
+      int error_value = errno;
+      printf("Failed to open. Returned fd = %d and errno = %d\n", spiDevice_, error_value);
+      return;
+   }
 
+   // Configure SPI mode and bits per word
+   uint8_t mode = SPI_MODE_0;
+   uint8_t bitsPerWord = 8;
+   if (ioctl(spiDevice_, SPI_IOC_WR_MODE, &mode) < 0 ||
+      ioctl(spiDevice_, SPI_IOC_WR_BITS_PER_WORD, &bitsPerWord) < 0) {
+      std::cerr << "Failed to configure SPI" << std::endl;
+      close(spiDevice_);
+      return;
+   }
+}
+
+void Status::spiTransfer(int spiDevice, uint8_t* data, int length) {
+    struct spi_ioc_transfer spi;
+    memset(&spi, 0, sizeof(spi));
+    spi.tx_buf = (unsigned long)data;
+    spi.rx_buf = 0;
+    spi.len = length;
+    spi.delay_usecs = 0;
+    spi.speed_hz = 8000000;  // SPI clock speed (8MHz)
+    spi.bits_per_word = 8;
+    spi.cs_change = 0;
+    ioctl(spiDevice, SPI_IOC_MESSAGE(1), &spi);
+}
+
+void Status::sendLedData(int spiDevice, uint8_t* ledData, int length) {
+    uint8_t spiData[length * 8];
+    for (int i = 0; i < length; ++i) {
+        uint8_t value = ledData[i];
+        for (int j = 7; j >= 0; --j) {
+            spiData[i * 8 + j] = (value & 0x80) ? 0xF8 : 0xC0;
+            value <<= 1;
+        }
+    }
+    spiTransfer(spiDevice, spiData, sizeof(spiData));
+}
+
+void Status::setColour(uint8_t (&ledData)[Claw::ledCount * 3], int num){
+    ledData[num * 3] = 255 ;  // Red component
+    ledData[num * 3 + 1] =  255;  // Green component
+    ledData[num * 3 + 2] = 255;  // Blue component
 }
 
 void Status::display(){
-
+   sendLedData(spiDevice_, ledData_, sizeof(ledData_));
 }
 
