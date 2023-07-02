@@ -92,6 +92,9 @@ class HardwareInterface : public hardware_interface::RobotHW {
          odrive_can_ros::CANSimple master_;
          std::vector<odrive_can_ros::ODriveAxis> allAxis_;
 
+         ContactSensor contacts_;
+         Status lights_;
+
          ImuData imuData_;
          ActuatorData jointData_[12];
 

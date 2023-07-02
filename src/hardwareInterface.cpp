@@ -52,6 +52,19 @@ HardwareInterface::~HardwareInterface(){
 
 void HardwareInterface::initialize(){
 
+   // Acquire URDF
+   // std::string urdfString;
+   // if (urdfModel_ == nullptr) {
+   //    urdfModel_ = std::make_shared<urdf::Model>();
+   // }
+   // nh.getParam("legged_robot_description", urdfString);
+   // return !urdfString.empty() && urdfModel_->initString(urdfString);
+
+   // if (!loadUrdf(root_nh)) {
+   //    ROS_ERROR("Error occurred while setting up urdf");
+   //    return false;
+   // }  
+
    // Setup handlers
    setupJoints();
    setupImu();
@@ -74,9 +87,9 @@ void HardwareInterface::initializeOdrive(){
    }
 
    allAxis_ = {master_.axis("HA1"), master_.axis("HF1"), master_.axis("KF1"),
-              master_.axis("HA2"), master_.axis("HF2"), master_.axis("KF2"),
-              master_.axis("HA3"), master_.axis("HF3"), master_.axis("KF3"),
-              master_.axis("HA4"), master_.axis("HF4"), master_.axis("KF4")};
+               master_.axis("HA2"), master_.axis("HF2"), master_.axis("KF2"),
+               master_.axis("HA3"), master_.axis("HF3"), master_.axis("KF3"),
+               master_.axis("HA4"), master_.axis("HF4"), master_.axis("KF4")};
 
    // Create Interface to SocketCAN 
    can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
@@ -105,10 +118,29 @@ void HardwareInterface::initializeOdrive(){
 
 void HardwareInterface::read(){
 
+   // Read Battery from Odrive
+   master_.get_vbus_voltage(allAxis_[0]);
+   batteryVoltage_ = allAxis_[0].vbus_voltage;
+   // Read Joint Positions & Velocities from Odrive
+
+   // Read Foot Contact Sensor
+   contacts_.read();
+
+   // Read IMU
+
 }
 
 void HardwareInterface::write(){
+   // Write Torque Commands to Odrive
+   for(int i = 0; i<allAxis_.size(); i++){
+      double command = jointData_[i].kp * (jointData_[i].positionDesired - jointData_[i].position) + 
+                       jointData_[i].kd * (jointData_[i].velocityDesired - jointData_[i].velocity) + 
+                       jointData_[i].ff;
+      master_.set_input_pos(allAxis_[i], command);
+   }
 
+   // Update Status LED's
+   lights_.display();
 }
 
 void HardwareInterface::IMUCallback(){
