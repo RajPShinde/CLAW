@@ -125,9 +125,6 @@ void HardwareInterface::read(){
 
    // Read Foot Contact Sensor
    contacts_.read();
-
-   // Read IMU
-
 }
 
 void HardwareInterface::write(){
@@ -143,21 +140,63 @@ void HardwareInterface::write(){
    lights_.display();
 }
 
-void HardwareInterface::IMUCallback(){
-   
+void HardwareInterface::IMUCallback(const sensor_msgs::Imu::ConstPtr& msg){
+  imuData_.orientation[0] = msg->orientation.x;
+  imuData_.orientation[1] = msg->orientation.y;
+  imuData_.orientation[2] = msg->orientation.z;
+  imuData_.orientation[3] = msg->orientation.w;
+  imuData_.angularVelocity[0] = msg->angular_velocity.x;
+  imuData_.angularVelocity[1] = msg->angular_velocity.y;
+  imuData_.angularVelocity[2] = msg->angular_velocity.z;
+  imuData_.linearAcceleration[0] = msg->linear_acceleration.x;
+  imuData_.linearAcceleration[1] = msg->linear_acceleration.y;
+  imuData_.linearAcceleration[2] = msg->linear_acceleration.z;
 }
 
 void HardwareInterface::setupJoints(){
+  for (const auto& joint : urdfModel_->joints_) {
 
+    int legIndex = 0;
+    int jointIndex = 0;
+
+    if (joint.first.find("RF") != std::string::npos)
+      legIndex = Claw::FR;
+    else if (joint.first.find("LF") != std::string::npos)
+      legIndex = Claw::FL;
+    else if (joint.first.find("RH") != std::string::npos)
+      legIndex = Claw::RR;
+    else if (joint.first.find("LH") != std::string::npos)
+      legIndex = Claw::RL;
+    else
+      continue;
+
+    if (joint.first.find("HAA") != std::string::npos)
+      jointIndex = 0; 
+    else if (joint.first.find("HFE") != std::string::npos)
+      jointIndex = 1;
+    else if (joint.first.find("KFE") != std::string::npos)
+      jointIndex = 2;
+    else
+      continue;
+
+    int index = legIndex * 3 + jointIndex;
+    hardware_interface::JointStateHandle stateHandle(joint.first, &jointData_[index].position, &jointData_[index].velocity,
+                                                      &jointData_[index].torque);
+    jointStateInterface_.registerHandle(stateHandle);
+    hybridJointInterface_.registerHandle(HybridJointHandle(&jointData_[index].positionDesired, &jointData_[index].velocityDesired,
+                                                           &jointData_[index].kp, &jointData_[index].kd, &jointData_[index].ff));
+  }
 }
 
 void HardwareInterface::setupImu(){
-   imuSensorInterface_.registerHandle(hardware_interface::ImuSensorHandle("imu", "imu", imuData_.orientation, imuData_.oorientationCovariance,
+   imuSensorInterface_.registerHandle(hardware_interface::ImuSensorHandle("imu", "imu_link", imuData_.orientation, imuData_.oorientationCovariance,
                                                                            imuData_.angularVelocity, imuData_.angularVelocityCovarinace, 
                                                                            imuData_.linearAcceleration, imuData_.linearAccelerationCovariance));
 }
 
 void HardwareInterface::setupContactSensor(){
-
+   for (size_t i = 0; i < 4; ++i) {
+      contactSensorInterface_.registerHandle(ContactSensorHandle(Claw::contactSensors[i], &contactState_[i]));
+   }
 }
 

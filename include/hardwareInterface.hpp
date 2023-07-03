@@ -52,8 +52,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <socketcan_interface/socketcan.h>
+#include <sensor_msgs/Imu.h>
 
-
+#include <contactSensorInterface.hpp>
+#include <contactSensorHandle.hpp>
+#include <hybridJointInterface.hpp>
+#include <hybridJointHandle.hpp>
 #include <odrive_can_ros/ODriveEnums.h>
 #include <odrive_can_ros/can_simple.hpp>
 #include <claw.hpp>
@@ -76,7 +80,7 @@ class HardwareInterface : public hardware_interface::RobotHW {
 
          void write();
 
-         void IMUCallback();
+         void IMUCallback(const sensor_msgs::Imu::ConstPtr& msg);
 
          void setupJoints();
 
@@ -87,6 +91,8 @@ class HardwareInterface : public hardware_interface::RobotHW {
    private:
          hardware_interface::JointStateInterface jointStateInterface_;
          hardware_interface::ImuSensorInterface imuSensorInterface_;
+         HybridJointInterface hybridJointInterface_;
+         ContactSensorInterface contactSensorInterface_;
          
          std::shared_ptr<urdf::Model> urdfModel_;
          odrive_can_ros::CANSimple master_;
@@ -97,6 +103,7 @@ class HardwareInterface : public hardware_interface::RobotHW {
 
          ImuData imuData_;
          ActuatorData jointData_[12];
+         bool contactState_[4];
 
          double batteryVoltage_;
 
