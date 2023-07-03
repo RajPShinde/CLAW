@@ -1,0 +1,8 @@
+#ifndef VERSION_HPP_
+#define VERSION_HPP_
+
+#define PROJECT_VERSION_MAJOR 1
+#define PROJECT_VERSION_MINOR 0
+#define PROJECT_VERSION_PATCH 0
+
+#endif  //  VERSION_HPP_
