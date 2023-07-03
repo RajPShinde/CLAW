@@ -4,8 +4,8 @@ HybridJointHandle::HybridJointHandle(){
 
 }
 
-HybridJointHandle::HybridJointHandle(double* positionDesired, double* velocityDesired, double* kp, double* kd, double* ff)
-                                    : positionDesired_(positionDesired), velocityDesired_(velocityDesired), kp_(kp), kd_(kd), ff_(ff) {
+HybridJointHandle::HybridJointHandle(const JointStateHandle& js, double* positionDesired, double* velocityDesired, double* kp, double* kd, double* ff)
+                                    : JointStateHandle(js),positionDesired_(positionDesired), velocityDesired_(velocityDesired), kp_(kp), kd_(kd), ff_(ff) {
 }
 
 HybridJointHandle::~HybridJointHandle(){

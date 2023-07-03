@@ -7,7 +7,7 @@ class HybridJointHandle : public hardware_interface::JointStateHandle {
     public:
         HybridJointHandle();
 
-        HybridJointHandle(double* positionDesired, double* velocityDesired, double* kp, double* kd, double* ff);
+        HybridJointHandle(const JointStateHandle& js, double* positionDesired, double* velocityDesired, double* kp, double* kd, double* ff);
 
         ~HybridJointHandle();
 
