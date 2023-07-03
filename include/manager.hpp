@@ -43,21 +43,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef INCLUDE_MANAGER_HPP_
 #define INCLUDE_MANAGER_HPP_
 
-#include <ros/ros.h>
 #include <thread>
 #include <string>
+#include <chrono>
 #include <iostream>
 #include <vector>
+
 #include <claw.hpp>
 #include <inverseKinematics.hpp>
 #include <forwardKinematics.hpp>
 #include <velocityKinematics.hpp>
 #include <trajectory.hpp>
 #include <hardwareInterface.hpp>
+#include <version.hpp>
+
+#include <ros/ros.h>
 
 class Manager {
     public:
-        Manager(std::shared_ptr<HardwareInterface> interface);
+        Manager(ros::NodeHandle &rootNH ,std::shared_ptr<HardwareInterface> interface);
 
         ~Manager();
 
@@ -65,7 +69,14 @@ class Manager {
 
     private:
         bool managerStatus_ = false;
-        bool controlThreadStatus_ = false;
+        std::atomic_bool controlThreadStatus_ = false;
+        ros::Duration elapsedTime_;
+        std::chrono::high_resolution_clock::time_point lastTime_;
+
+        int frequency_ = 500;
+        int threadPriority_ = 95;
+        double cycleTimeErrorThreshold_ = 0.005;
+        ros::Duration period_;
 
         std::thread controlThread_;
         std::shared_ptr<HardwareInterface> interface_;

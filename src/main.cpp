@@ -45,11 +45,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int main(int argc, char **argv){
    ros::init(argc, argv, "clawManager");
-   ros::NodeHandle nh;
+   ros::NodeHandle rootNH;
+   ros::NodeHandle robotHardwareNH("~");
+
+   ros::AsyncSpinner spinner(4);
+   spinner.start();
 
    std::shared_ptr<HardwareInterface> interface = std::make_shared<HardwareInterface>();
+   interface->init(rootNH, robotHardwareNH);
 
-   Manager claw(interface);
+   Manager claw(rootNH, interface);
    
    return 0;
 }

@@ -42,24 +42,54 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <manager.hpp>
 
-Manager::Manager(std::shared_ptr<HardwareInterface> interface) : interface_(interface) {
+Manager::Manager(ros::NodeHandle &rootNH, std::shared_ptr<HardwareInterface> interface) : interface_(interface) {
     
     controlThreadStatus_ = true;
+
+    lastTime_ = std::chrono::high_resolution_clock::now();
 
     controlThread_ = std::thread([&]() {
         while (controlThreadStatus_) {
             control();
         }
     });
+
+    sched_param sched{.sched_priority = threadPriority_};
+
+    if (pthread_setschedparam(controlThread_.native_handle(), SCHED_FIFO, &sched) != 0) {
+        ROS_WARN_STREAM("Failed to set threads priority");
+    }
 }
 
 Manager::~Manager(){
+    controlThreadStatus_ = false;
+    if (controlThread_.joinable()) {
+        controlThread_.join();
+    }
 }
 
 void Manager::control(){
+    const std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
-    interface_->read();
+    const std::chrono::duration<double> timeDelay(1.0/frequency_);
 
-    interface_->write();
+    std::chrono::duration<double> timeSpent = std::chrono::duration_cast<std::chrono::duration<double>>(currentTime - lastTime_);
+    period_ = ros::Duration(timeSpent.count());
+    lastTime_ = currentTime;
 
+    const double cycleTimeError = (period_ - ros::Duration(timeDelay.count())).toSec();
+    if (cycleTimeError > cycleTimeErrorThreshold_) {
+        ROS_WARN_STREAM("Cycle time exceeded error threshold by: " << cycleTimeError - cycleTimeErrorThreshold_ << "s");
+    }
+
+    // Read
+    interface_->read(ros::Time::now(), period_);
+
+    // Control
+
+    // Write
+    interface_->write(ros::Time::now(), period_);
+
+    const auto delay = currentTime + std::chrono::duration_cast<std::chrono::high_resolution_clock::duration>(timeDelay);
+    std::this_thread::sleep_until(delay);
 }
