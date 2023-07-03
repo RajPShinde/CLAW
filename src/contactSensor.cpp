@@ -66,11 +66,11 @@ void ContactSensor::initialize(){
    printConfig();
 }
 
-void ContactSensor::read(){
-   adc_->read(ADS1115::Multiplex::AIN0, a0_);
-   adc_->read(ADS1115::Multiplex::AIN1, a1_);
-   adc_->read(ADS1115::Multiplex::AIN2, a2_);
-   adc_->read(ADS1115::Multiplex::AIN3, a3_);
+void ContactSensor::read(bool (&contactState_)[4]){
+   contactState_[0] = adc_->read(ADS1115::Multiplex::AIN0, a0_) > Claw::contactThreshold;
+   contactState_[1] = adc_->read(ADS1115::Multiplex::AIN1, a1_) > Claw::contactThreshold;
+   contactState_[2] = adc_->read(ADS1115::Multiplex::AIN2, a2_) > Claw::contactThreshold;
+   contactState_[3] = adc_->read(ADS1115::Multiplex::AIN3, a3_) > Claw::contactThreshold;
 }
 
 void ContactSensor::printConfig(){

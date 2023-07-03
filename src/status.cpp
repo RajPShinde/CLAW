@@ -44,6 +44,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Status::Status(){
    initialize();
+   setColour(ledData_, 5, powerStatusColor);
 }
 
 Status::~Status(){
@@ -97,13 +98,33 @@ void Status::sendLedData(int spiDevice, uint8_t* ledData, int length) {
     spiTransfer(spiDevice, spiData, sizeof(spiData));
 }
 
-void Status::setColour(uint8_t (&ledData)[Claw::ledCount * 3], int num){
-    ledData[num * 3] = 255 ;  // Red component
-    ledData[num * 3 + 1] =  255;  // Green component
-    ledData[num * 3 + 2] = 255;  // Blue component
+void Status::setColour(uint8_t (&ledData)[Claw::ledCount * 3], int num, int color[3]){
+    ledData[num * 3] = color[0] ;
+    ledData[num * 3 + 1] =  color[1]; 
+    ledData[num * 3 + 2] = color[2];
 }
 
-void Status::display(){
+void Status::displayContactState(bool contactState[4]){
+   for(int i = 0; i < 4; i++){
+      if(contactState[i])
+         setColour(ledData_, i, contactStatusColor);
+      else{
+         int color[3] = {0, 0, 0};
+         setColour(ledData_, i, color);
+      }
+   }
    sendLedData(spiDevice_, ledData_, sizeof(ledData_));
+}
+
+void Status::setContactStatusColor(int red, int blue, int green){
+   contactStatusColor[0] = red;
+   contactStatusColor[1] = blue;
+   contactStatusColor[2] = green;
+}
+
+void Status::setPowerStatusColor(int red, int blue, int green){
+   powerStatusColor[0] = red;
+   powerStatusColor[1] = blue;
+   powerStatusColor[2] = green;
 }
 

@@ -64,7 +64,7 @@ class ContactSensor {
 
       void initialize();
 
-      void read();
+      void read(bool (&contactState_)[4]);
 
       void printConfig();
 

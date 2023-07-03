@@ -65,9 +65,18 @@ class Status {
 
       void sendLedData(int spiDevice, uint8_t* ledData, int length);
 
-      void setColour(uint8_t (&ledData)[Claw::ledCount * 3], int num);
+      void setColour(uint8_t (&ledData)[Claw::ledCount * 3], int num, int color[3]);
 
-      void display();
+      void displayContactState(bool contactState[4]);
+
+      void setContactStatusColor(int red, int blue, int green);
+
+      void setPowerStatusColor(int red, int blue, int green);
+
+      int contactStatusColor[3] = {255, 255, 255};
+
+      int powerStatusColor[3] = {255, 255, 255};
+
 
    private:
       int spiDevice_;
