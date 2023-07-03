@@ -73,37 +73,40 @@ class Claw {
          static constexpr double DH[3][3] = {{0, a,     -90},  // HA->HF
                                              {d, link1,   0},  // HF->KF
                                              {0, link2,   0}}; // KF->Foot
+         static constexpr int FR = 0;
+         static constexpr int FL = 1;
+         static constexpr int RR = 2;
+         static constexpr int RL = 3;
 
          // Electrical Parameters
          static constexpr double kv = 90;
          static constexpr double kt = kv*2*3.142/60;
          static constexpr double maxCurrent = 30;
          static constexpr double minBatteryVoltage = 22.2;
+         static constexpr double batteryLimit = 23;
          static constexpr double countsPerRevolution = 2000;
+         static constexpr int ledCount = 6;
          static constexpr double abductionCPRAngleRelation = (2*M_PI) / (countsPerRevolution *reductionHA);
          static constexpr double flexionCPRAngleRelation = (2*M_PI) / (countsPerRevolution *reductionHF);
          static constexpr double encoderOffset[4][3] = {{-175, -1934, -7934},
                                                         {114, 1511, 7926},
                                                         {-41, 813, 7876},
                                                         {30, -1370, -7711}};
-
          static constexpr int encoderDirection[4][3] = {{-1, 1, -1},
                                                         {-1, -1, 1},
                                                         {1, -1, 1},
                                                         {1, 1, -1}};
+         static constexpr char* contactSensors[4] = {"RF_FOOT", "LF_FOOT", "RH_FOOT", "LH_FOOT"};
 
 
-        // Port
+        // Communications
         static constexpr char ODRIVE_PORT[] = "can0";
         static constexpr char ADS111_PORT[] = "/dev/i2c-3";
         static constexpr char MPU9255_PORT[] = "/dev/i2c-3";
-
-        // Address
+        static constexpr char WS2812B_PORT[] = "/dev/spidev0.0";
         static constexpr uint8_t ADS111_ADDRESS = 0x48;
         static constexpr uint8_t MPU9255_ADDRESS = 0x68;
 
-        // General Parameters
-        static constexpr char legConfiguration[] = ">>";
 };
 
 #endif  //  INCLUDE_CLAW_HPP_
