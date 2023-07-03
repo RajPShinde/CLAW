@@ -46,14 +46,37 @@ ContactSensor::ContactSensor(){
    initialize();
 }
 
-ContactSensor::ContactSensor(){
-  
+ContactSensor::~ContactSensor(){
 }
 
 void ContactSensor::initialize(){
 
+   adc_ = std::make_shared<ADS1115::ADC<unix_i2c::i2c>>(Claw::ADS111_PORT, Claw::ADS111_ADDRESS);
+
+   auto config_fsr = ADS1115::FullScaleRange::FSR_6_144V;
+   auto config_dr  = ADS1115::DataRate::SPS_860;
+   auto config_cm  = ADS1115::ConversionMode::SingleShot;
+   auto config_mux = ADS1115::Multiplex::AIN0;
+
+   adc_->set_fsr(config_fsr);
+   adc_->set_data_rate(config_dr);
+   adc_->set_conversion_mode(config_cm);
+   adc_->set_multiplexing(config_mux);
+
+   printConfig();
 }
 
 void ContactSensor::read(){
+   adc_->read(ADS1115::Multiplex::AIN0, a0_);
+   adc_->read(ADS1115::Multiplex::AIN1, a1_);
+   adc_->read(ADS1115::Multiplex::AIN2, a2_);
+   adc_->read(ADS1115::Multiplex::AIN3, a3_);
+}
 
+void ContactSensor::printConfig(){
+   std::cout << "ADC Configuration" << std::endl;
+   std::cout << "\tfsr             : " << adc_->get_fsr() << std::endl;
+   std::cout << "\tmultiplexing    : " << adc_->get_multiplexing() << std::endl;
+   std::cout << "\tdata rate       : " << adc_->get_data_rate() << std::endl;
+   std::cout << "\tconversion mode : " << adc_->get_conversion_mode() << std::endl; 
 }

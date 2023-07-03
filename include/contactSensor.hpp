@@ -48,6 +48,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <unistd.h>
 #include <vector>
+#include <memory>
 
 #include <ADS1115.h>
 #include <unix.h> 
@@ -57,16 +58,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ContactSensor {
 
    public:
-         ContactSensor();
-        
-         ~ContactSensor();
+      ContactSensor();
+      
+      ~ContactSensor();
 
-         void initialize();
+      void initialize();
 
-         void read();
+      void read();
+
+      void printConfig();
 
    private:
+      std::shared_ptr<ADS1115::ADC<unix_i2c::i2c>> adc_;
 
+      double a0_, a1_, a2_, a3_;
 
 };
 
