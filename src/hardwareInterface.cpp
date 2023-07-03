@@ -43,27 +43,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <hardwareInterface.hpp>
 
 HardwareInterface::HardwareInterface(){
-   initialize();
 }
 
 HardwareInterface::~HardwareInterface(){
-  
 }
 
-void HardwareInterface::initialize(){
+bool HardwareInterface::init(ros::NodeHandle &rootNH, ros::NodeHandle &robotHardwareNH){
 
    // Acquire URDF
-   // std::string urdfString;
-   // if (urdfModel_ == nullptr) {
-   //    urdfModel_ = std::make_shared<urdf::Model>();
-   // }
-   // nh.getParam("legged_robot_description", urdfString);
-   // return !urdfString.empty() && urdfModel_->initString(urdfString);
+   std::string urdfString;
+   if (urdfModel_ == nullptr) {
+      urdfModel_ = std::make_shared<urdf::Model>();
+   }
+   rootNH.getParam("legged_robot_description", urdfString);
 
-   // if (!loadUrdf(root_nh)) {
-   //    ROS_ERROR("Error occurred while setting up urdf");
-   //    return false;
-   // }  
+   if (!(!urdfString.empty() && urdfModel_->initString(urdfString))) {
+      ROS_ERROR("URDF Setup Error");
+      return false;
+   } 
+
+  registerInterface(&jointStateInterface_);
+  registerInterface(&hybridJointInterface_);
+  registerInterface(&imuSensorInterface_);
+  registerInterface(&contactSensorInterface_);
 
    // Setup handlers
    setupJoints();
@@ -72,24 +74,26 @@ void HardwareInterface::initialize(){
 
    // Setup Odrive
    initializeOdrive();
+
+   imuSubscriber_ = rootNH.subscribe("/imu_data", 10, &HardwareInterface::IMUCallback, this);
+
+   return true;
 }
 
 void HardwareInterface::initializeOdrive(){
-   if (!(master_.add_axis(0, "KF1") && master_.add_axis(1, "HF1") &&
-         master_.add_axis(2, "HA2") && master_.add_axis(3, "HA1") &&
-         master_.add_axis(4, "KF2") && master_.add_axis(5, "HF2") &&
-         master_.add_axis(6, "KF3") && master_.add_axis(7, "HF3") &&
-         master_.add_axis(8, "HA4") && master_.add_axis(9, "HA3") &&
-         master_.add_axis(10, "KF4") && master_.add_axis(11, "HF4")))
+   if (!(master_.add_axis(0, "RF_HAA") && master_.add_axis(1, "RF_HFE") && master_.add_axis(2, "RF_KFE") && 
+         master_.add_axis(3, "LF_HAA") && master_.add_axis(4, "LF_HFE") && master_.add_axis(5, "LF_KFE") &&
+         master_.add_axis(6, "RH_HAA") && master_.add_axis(7, "RH_HFE") && master_.add_axis(8, "RH_KFE") && 
+         master_.add_axis(9, "LH_HAA") && master_.add_axis(10, "LH_HFE") && master_.add_axis(11, "LH_KFE")))
    {
       ROS_ERROR_STREAM("Failed to create one or more axis. Aborting");
       return;
    }
 
-   allAxis_ = {master_.axis("HA1"), master_.axis("HF1"), master_.axis("KF1"),
-               master_.axis("HA2"), master_.axis("HF2"), master_.axis("KF2"),
-               master_.axis("HA3"), master_.axis("HF3"), master_.axis("KF3"),
-               master_.axis("HA4"), master_.axis("HF4"), master_.axis("KF4")};
+   allAxis_ = {master_.axis("RF_HAA"), master_.axis("RF_HFE"), master_.axis("RF_KFE"),
+               master_.axis("LF_HAA"), master_.axis("LF_HFE"), master_.axis("LF_KFE"),
+               master_.axis("RH_HAA"), master_.axis("RH_HFE"), master_.axis("RH_KFE"),
+               master_.axis("LH_HAA"), master_.axis("LH_HFE"), master_.axis("LH_KFE")};
 
    // Create Interface to SocketCAN 
    can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
@@ -116,28 +120,47 @@ void HardwareInterface::initializeOdrive(){
    }
 }
 
-void HardwareInterface::read(){
+void HardwareInterface::read(const ros::Time& time, const ros::Duration& period){
 
    // Read Battery from Odrive
    master_.get_vbus_voltage(allAxis_[0]);
    batteryVoltage_ = allAxis_[0].vbus_voltage;
-   // Read Joint Positions & Velocities from Odrive
+
+   // Read Joint Positions, Velocities & Torques from Odrive
+   for(int i = 0; i<allAxis_.size(); i++){
+      master_.get_encoder_count(allAxis_[i]);
+      master_.get_encoder_estimates(allAxis_[i]);
+      master_.get_iq(allAxis_[i]);
+      double reduction = (i%3 == 0 ? Claw::reductionHAA : Claw::reductionHFE);
+      int direction = Claw::encoderDirection[i/3][i%3];
+      jointData_[i].position = (allAxis_[i].encoder_shadow_count - Claw::encoderOffset[i/3][i%3]) * direction * 2 * M_PI / (Claw::countsPerRevolution * reduction);
+      jointData_[i].velocity = allAxis_[i].vel_enc_estimate * 2 * M_PI * direction / reduction;
+      jointData_[i].torque = allAxis_[i].idq_second * Claw::kt * direction * reduction;
+   }
 
    // Read Foot Contact Sensor
-   contacts_.read();
+   contacts_.read(contactState_);
+
+   std::vector<std::string> names = hybridJointInterface_.getNames();
+   for (const auto& name : names) {
+      HybridJointHandle handle = hybridJointInterface_.getHandle(name);
+      handle.setFeedforward(0.);
+      handle.setVelocityDesired(0.);
+      handle.setKd(3.);
+   }
 }
 
-void HardwareInterface::write(){
+void HardwareInterface::write(const ros::Time& time, const ros::Duration& period){
    // Write Torque Commands to Odrive
    for(int i = 0; i<allAxis_.size(); i++){
       double command = jointData_[i].kp * (jointData_[i].positionDesired - jointData_[i].position) + 
                        jointData_[i].kd * (jointData_[i].velocityDesired - jointData_[i].velocity) + 
                        jointData_[i].ff;
-      master_.set_input_pos(allAxis_[i], command);
+      master_.set_input_torque(allAxis_[i], command);
    }
 
    // Update Status LED's
-   lights_.display();
+   lights_.displayContactState(contactState_);
 }
 
 void HardwareInterface::IMUCallback(const sensor_msgs::Imu::ConstPtr& msg){
@@ -160,13 +183,13 @@ void HardwareInterface::setupJoints(){
     int jointIndex = 0;
 
     if (joint.first.find("RF") != std::string::npos)
-      legIndex = Claw::FR;
+      legIndex = Claw::RF;
     else if (joint.first.find("LF") != std::string::npos)
-      legIndex = Claw::FL;
+      legIndex = Claw::LF;
     else if (joint.first.find("RH") != std::string::npos)
-      legIndex = Claw::RR;
+      legIndex = Claw::RH;
     else if (joint.first.find("LH") != std::string::npos)
-      legIndex = Claw::RL;
+      legIndex = Claw::LH;
     else
       continue;
 
@@ -183,7 +206,8 @@ void HardwareInterface::setupJoints(){
     hardware_interface::JointStateHandle stateHandle(joint.first, &jointData_[index].position, &jointData_[index].velocity,
                                                       &jointData_[index].torque);
     jointStateInterface_.registerHandle(stateHandle);
-    hybridJointInterface_.registerHandle(HybridJointHandle(&jointData_[index].positionDesired, &jointData_[index].velocityDesired,
+    jointStateInterface_.registerHandle(stateHandle);
+    hybridJointInterface_.registerHandle(HybridJointHandle(stateHandle, &jointData_[index].positionDesired, &jointData_[index].velocityDesired,
                                                            &jointData_[index].kp, &jointData_[index].kd, &jointData_[index].ff));
   }
 }

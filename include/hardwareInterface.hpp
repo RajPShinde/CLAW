@@ -72,13 +72,13 @@ class HardwareInterface : public hardware_interface::RobotHW {
         
          ~HardwareInterface();
 
-         void initialize();
+         bool init(ros::NodeHandle &rootNH, ros::NodeHandle &robotHardwareNH);
 
          void initializeOdrive();
 
-         void read();
+         void read(const ros::Time& time, const ros::Duration& period);
 
-         void write();
+         void write(const ros::Time& time, const ros::Duration& period);
 
          void IMUCallback(const sensor_msgs::Imu::ConstPtr& msg);
 
@@ -93,6 +93,8 @@ class HardwareInterface : public hardware_interface::RobotHW {
          hardware_interface::ImuSensorInterface imuSensorInterface_;
          HybridJointInterface hybridJointInterface_;
          ContactSensorInterface contactSensorInterface_;
+
+         ros::Subscriber imuSubscriber_;
          
          std::shared_ptr<urdf::Model> urdfModel_;
          odrive_can_ros::CANSimple master_;
