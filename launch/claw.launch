@@ -1,25 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-  
-  <!-- <param name="robot_description" textfile="$(find claw)/urdf/claw.urdf" /> -->
-    
-  <!-- <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" /> -->
-
-  <!-- Robot Manager -->
-  <node name="clawManager" pkg="claw" type="clawManager" output="screen"/> 
+  <!-- Claw Manager -->
+  <node name="clawHardwareInterface" pkg="claw" type="clawHardwareInterface" output="screen"/> 
 
   <!-- Rviz -->
-  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" /> -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" />
 
-  <node name="base_world" pkg="tf" type="static_transform_publisher" args="0 0 0.386 0 0 0 map base_world 40" />
-
-  <node name="led" pkg="claw" type="rgbLED.py"/>
-
-  <!-- <node name="display" pkg="claw" type="display.py"/> -->
-
-  <node name="foot1" pkg="tf" type="static_transform_publisher" args="0.2245 0 0 0 0 0 leg1_link2 foot1 40" />
-  <node name="foot2" pkg="tf" type="static_transform_publisher" args="0.2245 0 0 0 0 0 leg2_link2 foot2 40" />
-  <node name="foot3" pkg="tf" type="static_transform_publisher" args="0.2245 0 0 0 0 0 leg3_link2 foot3 40" />
-  <node name="foot4" pkg="tf" type="static_transform_publisher" args="0.2245 0 0 0 0 0 leg4_link2 foot4 40" />
 </launch>

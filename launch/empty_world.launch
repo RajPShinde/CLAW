@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <param name="legged_robot_description" command="$(find xacro)/xacro $(find claw)/urdf/claw.xacro"/>
+
+    <node name="generate_urdf" pkg="claw" type="generateURDF.sh" output="screen"
+          args="$(find claw)/urdf/claw.xacro claw"/>
+
+    <rosparam file="$(find claw)/config/default.yaml" command="load"/>
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" >
+      <arg name="paused" value="true"/>
+    </include>
+
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" clear_params="true" 
+  args="-z 0.3 -param legged_robot_description -urdf -unpause -model claw
+  -J claw::LF_HAA 0
+  -J claw::LH_HAA 0
+  -J claw::RH_HAA 0
+  -J claw::RF_HAA 0  
+  -J claw::LF_HFE 1.2  
+  -J claw::RF_HFE 1.2  
+  -J claw::LH_HFE 1.2  
+  -J claw::RH_HFE 1.2 
+  -J claw::LF_KFE -2 
+  -J claw::RF_KFE -2 
+  -J claw::LH_KFE -2  
+  -J claw::RH_KFE -2 " output="screen"/>
+
+</launch>
