@@ -1,7 +1,7 @@
 /*
 BSD 3-Clause License
 
-Copyright (c) 2022, Raj Shinde
+Copyright (c) 2023, Raj Shinde
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -35,18 +35,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @author Raj Shinde
  * @brief 
  * @version 0.1
- * @date 2022-10-09
- * 
- * @copyright BSD 3-Clause License, Copyright (c) 2022
+ * @date 2023-06-25
+ * @copyright BSD 3-Clause License, Copyright (c) 2023
  * 
  */
 
-#include <manager.hpp>
 #include <ros/ros.h>
+#include <manager.hpp>
 
 int main(int argc, char **argv){
-    ros::init(argc, argv, "clawmanager");
-    ros::NodeHandle nh;
-    Manager claw(nh);
-    return 0;
+   ros::init(argc, argv, "clawManager");
+   ros::NodeHandle nh;
+
+   std::shared_ptr<HardwareInterface> interface = std::make_shared<HardwareInterface>();
+
+   Manager claw(interface);
+   
+   return 0;
 }

@@ -35,9 +35,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @author Raj Shinde
  * @brief 
  * @version 0.1
- * @date 2022-10-09
- * 
- * @copyright BSD 3-Clause License, Copyright (c) 2022
+ * @date 2023-06-25
+ * @copyright BSD 3-Clause License, Copyright (c) 2023
  * 
  */
 
@@ -54,58 +53,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <forwardKinematics.hpp>
 #include <velocityKinematics.hpp>
 #include <trajectory.hpp>
-#include <odrive_can_ros/ODriveEnums.h>
-#include <odrive_can_ros/can_simple.hpp>
-#include <socketcan_interface/socketcan.h>
-#include <sensor_msgs/JointState.h>
-#include <tf/transform_broadcaster.h>
+#include <hardwareInterface.hpp>
 
 class Manager {
     public:
-        Manager(ros::NodeHandle &nh);
+        Manager(std::shared_ptr<HardwareInterface> interface);
 
         ~Manager();
 
-        int init();
-
-        int begin();
-
-        std::vector<double> anglesToPosition(std::vector<double> angle, int n);
-
-        std::vector<double> positionToAngle(int n);
-        
-        void move(odrive_can_ros::CANSimple &master);
-
-        void poseManipulation(odrive_can_ros::CANSimple &master);
-
-        double offsetTime(double timeReference, int phaseReference, int &phasePair, double delay, Gait gait);
-
-        void initializeOdrives(odrive_can_ros::CANSimple &master, std::string controlMode);
-
-        void commandOdrives(odrive_can_ros::CANSimple &master);
-
-        void idleOdrives(odrive_can_ros::CANSimple &master);
-
-        void statePublisher();
+        void control();
 
     private:
-        bool managerStatus = true;
-        double commandValue_ = 1;
-        double commandDirection_ = 1;
-        double batteryVoltage_ = 0;
-        std::string state_ = "MOVE_BASE";
-        std::vector<std::vector<double>> jointAngles_;
-        const std::vector<std::string> states_ = {"IDLE", "SIT", "WALK", "MOVE_BASE", "UNKNOWN"};
-        std::vector<std::vector<int>> encoderShadowCount_;
-        std::vector<double> jointVelocity_;
-        std::vector<odrive_can_ros::ODriveAxis> allAxis;
+        bool managerStatus_ = false;
+        bool controlThreadStatus_ = false;
 
-        ros::Publisher jointStatePublisher_;
-        ForwardKinematics fk_;
-
-        Pose base = {0, 0, 0};
-
-        std::vector<double> legState1, legState2, legState3, legState4;
+        std::thread controlThread_;
+        std::shared_ptr<HardwareInterface> interface_;
 };
 
 #endif  //  INCLUDE_MANAGER_HPP_
