@@ -42,10 +42,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <manager.hpp>
 
-Manager::Manager(ros::NodeHandle &rootNH, std::shared_ptr<HardwareInterface> interface) : interface_(interface) {
+Manager::Manager(ros::NodeHandle &rootNH, std::shared_ptr<HardwareInterface> interface) : interface_(interface), controlThreadStatus_(true) {
     
-    controlThreadStatus_ = true;
-
     lastTime_ = std::chrono::high_resolution_clock::now();
 
     controlThread_ = std::thread([&]() {

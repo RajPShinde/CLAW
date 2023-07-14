@@ -98,7 +98,7 @@ class HardwareInterface : public hardware_interface::RobotHW {
          
          std::shared_ptr<urdf::Model> urdfModel_;
          odrive_can_ros::CANSimple master_;
-         std::vector<odrive_can_ros::ODriveAxis> allAxis_;
+         std::vector<std::string> allAxis_;
 
          ContactSensor contacts_;
          Status lights_;

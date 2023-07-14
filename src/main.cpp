@@ -55,6 +55,7 @@ int main(int argc, char **argv){
    interface->init(rootNH, robotHardwareNH);
 
    Manager claw(rootNH, interface);
+   ros::waitForShutdown();
    
    return 0;
 }

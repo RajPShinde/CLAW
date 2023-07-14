@@ -75,7 +75,7 @@ bool HardwareInterface::init(ros::NodeHandle &rootNH, ros::NodeHandle &robotHard
    // Setup Odrive
    initializeOdrive();
 
-   imuSubscriber_ = rootNH.subscribe("/imu_data", 10, &HardwareInterface::IMUCallback, this);
+   imuSubscriber_ = rootNH.subscribe("/imu_data", 1, &HardwareInterface::IMUCallback, this);
 
    return true;
 }
@@ -90,10 +90,10 @@ void HardwareInterface::initializeOdrive(){
       return;
    }
 
-   allAxis_ = {master_.axis("RF_HAA"), master_.axis("RF_HFE"), master_.axis("RF_KFE"),
-               master_.axis("LF_HAA"), master_.axis("LF_HFE"), master_.axis("LF_KFE"),
-               master_.axis("RH_HAA"), master_.axis("RH_HFE"), master_.axis("RH_KFE"),
-               master_.axis("LH_HAA"), master_.axis("LH_HFE"), master_.axis("LH_KFE")};
+   allAxis_ = {"RF_HAA", "RF_HFE", "RF_KFE",
+               "LF_HAA", "LF_HFE", "LF_KFE",
+               "RH_HAA", "RH_HFE", "RH_KFE",
+               "LH_HAA", "LH_HFE", "LH_KFE"};
 
    // Create Interface to SocketCAN 
    can::ThreadedSocketCANInterfaceSharedPtr driver = std::make_shared<can::ThreadedSocketCANInterface>();
@@ -116,26 +116,23 @@ void HardwareInterface::initializeOdrive(){
 
    // Start Torque Control on All Axis
    for(int i = 0; i<allAxis_.size(); i++){
-      master_.set_axis_requested_state(allAxis_[i], odrive_can_ros::AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
+      master_.set_axis_requested_state(master_.axis(allAxis_[i]), odrive_can_ros::AxisState::AXIS_STATE_CLOSED_LOOP_CONTROL);
    }
 }
 
 void HardwareInterface::read(const ros::Time& time, const ros::Duration& period){
 
    // Read Battery from Odrive
-   master_.get_vbus_voltage(allAxis_[0]);
-   batteryVoltage_ = allAxis_[0].vbus_voltage;
+   master_.get_vbus_voltage(master_.axis("RF_HAA"));
+   batteryVoltage_ = master_.axis("RF_HAA").vbus_voltage;
 
    // Read Joint Positions, Velocities & Torques from Odrive
    for(int i = 0; i<allAxis_.size(); i++){
-      master_.get_encoder_count(allAxis_[i]);
-      master_.get_encoder_estimates(allAxis_[i]);
-      master_.get_iq(allAxis_[i]);
       double reduction = (i%3 == 0 ? Claw::reductionHAA : Claw::reductionHFE);
       int direction = Claw::encoderDirection[i/3][i%3];
-      jointData_[i].position = (allAxis_[i].encoder_shadow_count - Claw::encoderOffset[i/3][i%3]) * direction * 2 * M_PI / (Claw::countsPerRevolution * reduction);
-      jointData_[i].velocity = allAxis_[i].vel_enc_estimate * 2 * M_PI * direction / reduction;
-      jointData_[i].torque = allAxis_[i].idq_second * Claw::kt * direction * reduction;
+      jointData_[i].position = (master_.axis(allAxis_[i]).pos_enc_estimate - Claw::encoderOffset[i/3][i%3]) * direction * 2 * M_PI / reduction;
+      jointData_[i].velocity = master_.axis(allAxis_[i]).vel_enc_estimate * 2 * M_PI * direction / reduction;
+      jointData_[i].torque = master_.axis(allAxis_[i]).idq_second * Claw::kt * direction * reduction;
    }
 
    // Read Foot Contact Sensor
@@ -156,7 +153,7 @@ void HardwareInterface::write(const ros::Time& time, const ros::Duration& period
       double command = jointData_[i].kp * (jointData_[i].positionDesired - jointData_[i].position) + 
                        jointData_[i].kd * (jointData_[i].velocityDesired - jointData_[i].velocity) + 
                        jointData_[i].ff;
-      master_.set_input_torque(allAxis_[i], command);
+      master_.set_input_torque(master_.axis(allAxis_[i]), command);
    }
 
    // Update Status LED's
@@ -205,7 +202,6 @@ void HardwareInterface::setupJoints(){
     int index = legIndex * 3 + jointIndex;
     hardware_interface::JointStateHandle stateHandle(joint.first, &jointData_[index].position, &jointData_[index].velocity,
                                                       &jointData_[index].torque);
-    jointStateInterface_.registerHandle(stateHandle);
     jointStateInterface_.registerHandle(stateHandle);
     hybridJointInterface_.registerHandle(HybridJointHandle(stateHandle, &jointData_[index].positionDesired, &jointData_[index].velocityDesired,
                                                            &jointData_[index].kp, &jointData_[index].kd, &jointData_[index].ff));
