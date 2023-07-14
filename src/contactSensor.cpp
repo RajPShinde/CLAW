@@ -42,11 +42,23 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <contactSensor.hpp>
 
-ContactSensor::ContactSensor(){
+ContactSensor::ContactSensor() : sensorThreadStatus_(true) {
    initialize();
+    sensorThread_ = std::thread([&]() {
+        while (sensorThreadStatus_) {
+            adc_->read(ADS1115::Multiplex::AIN0, a0_);
+            adc_->read(ADS1115::Multiplex::AIN1, a1_);
+            adc_->read(ADS1115::Multiplex::AIN2, a2_);
+            adc_->read(ADS1115::Multiplex::AIN3, a3_);
+        }
+    });
 }
 
 ContactSensor::~ContactSensor(){
+   sensorThreadStatus_ = false;
+    if (sensorThread_.joinable()) {
+        sensorThread_.join();
+    }
 }
 
 void ContactSensor::initialize(){
@@ -66,11 +78,11 @@ void ContactSensor::initialize(){
    printConfig();
 }
 
-void ContactSensor::read(bool (&contactState_)[4]){
-   contactState_[0] = adc_->read(ADS1115::Multiplex::AIN0, a0_) > Claw::contactThreshold;
-   contactState_[1] = adc_->read(ADS1115::Multiplex::AIN1, a1_) > Claw::contactThreshold;
-   contactState_[2] = adc_->read(ADS1115::Multiplex::AIN2, a2_) > Claw::contactThreshold;
-   contactState_[3] = adc_->read(ADS1115::Multiplex::AIN3, a3_) > Claw::contactThreshold;
+void ContactSensor::read(bool (&contactState)[4]){
+   contactState[0] = a0_ > Claw::contactThreshold;
+   contactState[1] = a1_ > Claw::contactThreshold;
+   contactState[2] = a2_ > Claw::contactThreshold;
+   contactState[3] = a3_ > Claw::contactThreshold;
 }
 
 void ContactSensor::printConfig(){

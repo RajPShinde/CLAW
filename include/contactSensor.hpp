@@ -49,6 +49,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <unistd.h>
 #include <vector>
 #include <memory>
+#include <thread>
 
 #include <ADS1115.h>
 #include <unix.h> 
@@ -72,6 +73,9 @@ class ContactSensor {
       std::shared_ptr<ADS1115::ADC<unix_i2c::i2c>> adc_;
 
       double a0_, a1_, a2_, a3_;
+
+      std::thread sensorThread_;
+      bool sensorThreadStatus_ = false;
 
 };
 
