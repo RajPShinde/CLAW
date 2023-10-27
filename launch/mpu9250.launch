@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <!-- IMU Driver -->
+    <node pkg="claw" name="mpu9250" type="mpu9250.py" output="screen" required="true" />
+
+    <!-- Fused Orientation -->
+    <node pkg="imu_filter_madgwick" name="imu_filter_node" type="imu_filter_node" output="screen" required="true"> 
+    	<param name="use_mag" value="false"/>
+	    <param name="fixed_frame" value="base"/>
+	    <param name="publish_tf" value="false"/>
+    </node>
+
+</launch>

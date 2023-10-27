@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
+  <param name="legged_robot_description" command="$(find xacro)/xacro $(find claw)/urdf/claw.xacro"/>
 
   <!-- Claw Manager -->
   <node name="clawHardwareInterface" pkg="claw" type="clawHardwareInterface" output="screen"/> 
 
   <!-- Rviz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find claw)/config/rviz/claw.rviz" />
-
+  
 </launch>
