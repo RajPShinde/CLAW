@@ -49,35 +49,39 @@ def main():
 
     odrv0 = getOdrive()
 
-    # odrv0.can.config.baud_rate = 500000
+    odrv0.can.config.baud_rate = 500000
 
-    # odrv0.config.brake_resistance = 0.5
-    # odrv0.config.enable_brake_resistor = True
-    # odrv0.config.dc_max_negative_current = -0.20
+    odrv0.config.brake_resistance = 0.5
+    odrv0.config.enable_brake_resistor = True
+    odrv0.config.dc_max_negative_current = -0.20
 
     odrv0.clear_errors()
 
-    # print('Configuring Axis 0');
-    # odrv0.axis0.config.can.node_id = (odriveNo -1)*2
-    # odrv0.axis0.motor.config.pole_pairs = 20
-    # odrv0.axis0.encoder.config.cpr = 2000
-    # odrv0.axis0.motor.config.torque_constant = 0.091888889
+    print('Configuring Axis 0');
+    odrv0.axis0.config.can.node_id = (odriveNo -1)*2
+    odrv0.axis0.motor.config.pole_pairs = 20
+    odrv0.axis0.encoder.config.cpr = 2000
+    odrv0.axis0.motor.config.torque_constant = 0.091888889
 
-    # odrv0.axis0.motor.config.current_lim = 30
-    # odrv0.axis0.motor.config.calibration_current = 15
-    # odrv0.axis0.motor.config.resistance_calib_max_voltage = 2
-    # odrv0.axis0.controller.config.vel_limit = 10
+    odrv0.axis0.motor.config.current_lim = 30
+    odrv0.axis0.motor.config.calibration_current = 15
+    odrv0.axis0.motor.config.resistance_calib_max_voltage = 2
+    odrv0.axis0.controller.config.vel_limit = 10
 
     calibrateMotor(odrv0, odrv0.axis0)
     odrv0.axis0.motor.config.pre_calibrated = True
 
     odrv0.axis0.encoder.config.use_index =True
     calibrateEncoder(odrv0, odrv0.axis0)
-    # odrv0.axis0.encoder.config.pre_calibrated =True
-    # odrv0.axis0.config.startup_encoder_index_search = True
-    # odrv0.axis0.config.startup_encoder_offset_calibration = False
+    odrv0.axis0.encoder.config.pre_calibrated =True
+    odrv0.axis0.config.startup_encoder_index_search = True
+    odrv0.axis0.config.startup_encoder_offset_calibration = False
 
-    # odrv0.axis0.config.startup_closed_loop_control = False
+    odrv0.axis0.controller.config.control_mode = CONTROL_MODE_TORQUE_CONTROL
+    odrv0.axis0.config.startup_closed_loop_control = False
+
+    odrv0.axis0.config.can.encoder_rate_ms = 20
+    odrv0.axis0.config.can.iq_rate_ms = 20
 
     # odrv0.axis0.controller.config.pos_gain = 100
 
@@ -90,27 +94,31 @@ def main():
     print(odrv0.axis0.motor.error)
     print(odrv0.axis0.encoder.error)
 
-    # print('Configuring Axis 1');
-    # odrv0.axis1.config.can.node_id = (odriveNo -1)*2 + 1
-    # odrv0.axis1.motor.config.pole_pairs=20
-    # odrv0.axis1.encoder.config.cpr = 2000
-    # odrv0.axis1.motor.config.torque_constant=0.091888889
+    print('Configuring Axis 1');
+    odrv0.axis1.config.can.node_id = (odriveNo -1)*2 + 1
+    odrv0.axis1.motor.config.pole_pairs=20
+    odrv0.axis1.encoder.config.cpr = 2000
+    odrv0.axis1.motor.config.torque_constant=0.091888889
 
-    # odrv0.axis1.motor.config.current_lim = 30
-    # odrv0.axis1.motor.config.calibration_current = 15
-    # odrv0.axis1.motor.config.resistance_calib_max_voltage = 2
-    # odrv0.axis1.controller.config.vel_limit = 10
+    odrv0.axis1.motor.config.current_lim = 30
+    odrv0.axis1.motor.config.calibration_current = 15
+    odrv0.axis1.motor.config.resistance_calib_max_voltage = 2
+    odrv0.axis1.controller.config.vel_limit = 10
 
     calibrateMotor(odrv0, odrv0.axis1)
     odrv0.axis1.motor.config.pre_calibrated = True
 
     odrv0.axis1.encoder.config.use_index =True
     calibrateEncoder(odrv0, odrv0.axis1)
-    # odrv0.axis1.encoder.config.pre_calibrated =True
-    # odrv0.axis1.config.startup_encoder_index_search = True
-    # odrv0.axis1.config.startup_encoder_offset_calibration = False
+    odrv0.axis1.encoder.config.pre_calibrated =True
+    odrv0.axis1.config.startup_encoder_index_search = True
+    odrv0.axis1.config.startup_encoder_offset_calibration = False
 
-    # odrv0.axis1.config.startup_closed_loop_control = False
+    odrv0.axis1.controller.config.control_mode = CONTROL_MODE_TORQUE_CONTROL
+    odrv0.axis1.config.startup_closed_loop_control = False
+
+    odrv0.axis1.config.can.encoder_rate_ms = 20
+    odrv0.axis1.config.can.iq_rate_ms = 20
 
     # odrv0.axis1.controller.config.pos_gain = 100
 
